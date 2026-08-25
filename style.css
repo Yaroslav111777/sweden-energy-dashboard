@@ -1,0 +1,63 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 40px;
+    background-color: #f4f6f8;
+    color: #1f2937;
+}
+
+header {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 20px;
+    color: #64748b;
+}
+.energy-mix {
+    max-width: 1000px;
+    margin: 60px auto 0;
+}
+
+.energy-mix h2 {
+    font-size: 30px;
+    margin-bottom: 25px;
+}
+
+.energy-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.energy-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.energy-icon {
+    font-size: 36px;
+}
+
+.energy-card h3 {
+    margin: 15px 0 5px;
+}
+
+.percentage {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.energy-card p:last-child {
+    color: #64748b;
+}

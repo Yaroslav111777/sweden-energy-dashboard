@@ -61,3 +61,16 @@ p {
 .energy-card p:last-child {
     color: #64748b;
 }
+@media (max-width: 768px) {
+    body {
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+
+    .energy-grid {
+        grid-template-columns: 1fr;
+    }
+}

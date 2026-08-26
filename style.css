@@ -1,76 +1,379 @@
+```css
+/* ======================================================
+   GLOBAL
+   ====================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 40px;
-    background-color: #f4f6f8;
+    background: #f4f6f8;
     color: #1f2937;
 }
 
-header {
+main {
     max-width: 1000px;
     margin: 0 auto;
 }
 
-h1 {
-    font-size: 42px;
-    margin-bottom: 10px;
+p {
+    margin: 0;
+    color: #64748b;
 }
 
-p {
+
+/* ======================================================
+   HEADER
+   ====================================================== */
+
+.hero {
+    max-width: 1000px;
+    margin: 0 auto 45px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.hero h1 {
+    font-size: 42px;
+    margin: 0 0 10px;
+    color: #111827;
+}
+
+.hero p {
     font-size: 20px;
     color: #64748b;
 }
-.energy-mix {
-    max-width: 1000px;
-    margin: 60px auto 0;
+
+.hero-badge {
+    background: white;
+    padding: 12px 18px;
+    border-radius: 999px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-weight: bold;
+    white-space: nowrap;
 }
 
-.energy-mix h2 {
-    font-size: 30px;
+
+/* ======================================================
+   MONTH SELECTOR
+   ====================================================== */
+
+.controls {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-.energy-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+.controls label {
+    font-weight: bold;
+    color: #374151;
+}
+
+.controls select {
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    color: #1f2937;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+
+/* ======================================================
+   TOTAL PRODUCTION
+   ====================================================== */
+
+.total-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 60px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 20px;
 }
 
+.section-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.total-number {
+    font-size: 48px;
+    font-weight: bold;
+    color: #111827;
+}
+
+.total-unit {
+    font-size: 20px;
+    font-weight: normal;
+    color: #64748b;
+}
+
+.total-period {
+    background: #f1f5f9;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #475569;
+}
+
+
+/* ======================================================
+   SECTION HEADINGS
+   ====================================================== */
+
+section {
+    margin-bottom: 60px;
+}
+
+.section-heading {
+    margin-bottom: 25px;
+}
+
+.section-heading h2 {
+    font-size: 30px;
+    margin: 0 0 8px;
+    color: #111827;
+}
+
+.section-heading p {
+    font-size: 18px;
+}
+
+
+/* ======================================================
+   ENERGY GRID
+   ====================================================== */
+
+.energy-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+
+/* ======================================================
+   ENERGY CARDS
+   ====================================================== */
+
 .energy-card {
-    background-color: white;
+    background: white;
     padding: 25px;
     border-radius: 12px;
-    text-align: center;
+    text-align: left;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.energy-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.12);
+}
+
+.energy-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
 .energy-icon {
     font-size: 36px;
 }
 
+.energy-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 5px 9px;
+    border-radius: 999px;
+}
+
 .energy-card h3 {
-    margin: 15px 0 5px;
+    margin: 18px 0 8px;
+    font-size: 20px;
 }
 
 .percentage {
     font-size: 32px;
     font-weight: bold;
     margin: 10px 0;
+    color: #111827;
 }
 
-.energy-card p:last-child {
-    color: #64748b;
+.gwh-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #475569;
+    margin-bottom: 10px;
 }
-@media (max-width: 768px) {
+
+.energy-card p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* ======================================================
+   ENERGY CARD ACCENTS
+   ====================================================== */
+
+.energy-card.hydro {
+    border-top: 4px solid #3b82f6;
+}
+
+.energy-card.nuclear {
+    border-top: 4px solid #64748b;
+}
+
+.energy-card.wind {
+    border-top: 4px solid #06b6d4;
+}
+
+.energy-card.solar {
+    border-top: 4px solid #f59e0b;
+}
+
+.energy-card.thermal {
+    border-top: 4px solid #ef4444;
+}
+
+.energy-card.renewable-thermal {
+    border-top: 4px solid #22c55e;
+}
+
+
+/* ======================================================
+   CHARTS
+   ====================================================== */
+
+.chart-section {
+    margin-bottom: 60px;
+}
+
+.chart-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    height: 400px;
+    position: relative;
+}
+
+.large-chart {
+    height: 500px;
+}
+
+
+/* ======================================================
+   FOOTER
+   ====================================================== */
+
+footer {
+    max-width: 1000px;
+    margin: 80px auto 0;
+    padding-top: 25px;
+    border-top: 1px solid #d1d5db;
+    text-align: center;
+}
+
+footer p {
+    font-size: 14px;
+    margin: 5px 0;
+    color: #94a3b8;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+   ====================================================== */
+
+@media (max-width: 900px) {
+
     body {
-        padding: 25px;
+        padding: 30px;
     }
 
-    h1 {
+    .energy-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    body {
+        padding: 20px;
+    }
+
+    .hero {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 30px;
+    }
+
+    .hero h1 {
         font-size: 32px;
+    }
+
+    .hero p {
+        font-size: 17px;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .controls select {
+        width: 100%;
+    }
+
+    .total-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .total-number {
+        font-size: 38px;
     }
 
     .energy-grid {
         grid-template-columns: 1fr;
     }
+
+    .section-heading h2 {
+        font-size: 26px;
+    }
+
+    .chart-card {
+        height: 350px;
+        padding: 15px;
+    }
+
+    .large-chart {
+        height: 400px;
+    }
+
 }
+```

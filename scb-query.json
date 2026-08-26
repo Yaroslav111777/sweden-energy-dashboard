@@ -1,0 +1,26 @@
+{
+  "selection": [
+    {
+      "variableCode": "Produktionsslag",
+      "valueCodes": [
+        "Total",
+        "Vindkraft",
+        "Vattenkraft",
+        "Karnkraft",
+        "Solkraft"
+      ]
+    },
+    {
+      "variableCode": "ContentsCode",
+      "valueCodes": [
+        "000004DF"
+      ]
+    },
+    {
+      "variableCode": "Tid",
+      "valueCodes": [
+        "2026M06"
+      ]
+    }
+  ]
+}

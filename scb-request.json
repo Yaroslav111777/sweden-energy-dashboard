@@ -1,0 +1,28 @@
+﻿{
+  "query": [
+    {
+      "code": "Produktionsslag",
+      "selection": {
+        "filter": "all",
+        "values": ["*"]
+      }
+    },
+    {
+      "code": "ContentsCode",
+      "selection": {
+        "filter": "all",
+        "values": ["*"]
+      }
+    },
+    {
+      "code": "Tid",
+      "selection": {
+        "filter": "all",
+        "values": ["*"]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat2"
+  }
+}

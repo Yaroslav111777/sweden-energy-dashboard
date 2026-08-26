@@ -80,6 +80,8 @@ fetch("./data/electricity-production.csv")
 
         updateRenewableChart();
 
+        updateKeyFindings();
+
     })
     .catch(error => {
 
@@ -1286,6 +1288,143 @@ function updateRenewableChart() {
             }
 
         }
+    );
+
+}
+// ======================================================
+// KEY FINDINGS
+// ======================================================
+
+function updateKeyFindings() {
+
+    const months = [
+        ...new Set(
+            allRows.map(row => row.month)
+        )
+    ];
+
+    if (months.length < 2) {
+        return;
+    }
+
+    const firstMonth = months[0];
+    const lastMonth = months[months.length - 1];
+
+    const firstValues = getMonthValues(firstMonth);
+    const lastValues = getMonthValues(lastMonth);
+
+    // --------------------------------------------------
+    // RENEWABLE SHARE
+    // --------------------------------------------------
+
+    const renewableLast =
+        (lastValues.Vattenkraft ?? 0) +
+        (lastValues.Vindkraft ?? 0) +
+        (lastValues.Solkraft ?? 0) +
+        (lastValues.VarmekrF ?? 0);
+
+    const renewableFirst =
+        (firstValues.Vattenkraft ?? 0) +
+        (firstValues.Vindkraft ?? 0) +
+        (firstValues.Solkraft ?? 0) +
+        (firstValues.VarmekrF ?? 0);
+
+    const lastTotal =
+        lastValues.Total ?? 0;
+
+    const firstTotal =
+        firstValues.Total ?? 0;
+
+    const lastShare =
+        lastTotal > 0
+            ? (renewableLast / lastTotal) * 100
+            : 0;
+
+    const firstShare =
+        firstTotal > 0
+            ? (renewableFirst / firstTotal) * 100
+            : 0;
+
+    // --------------------------------------------------
+    // CHANGE
+    // --------------------------------------------------
+
+    const change =
+        lastShare - firstShare;
+
+    const changeText =
+        change >= 0
+            ? "+" + change.toFixed(1) + " percentage points"
+            : change.toFixed(1) + " percentage points";
+
+    // --------------------------------------------------
+    // LARGEST SOURCE
+    // --------------------------------------------------
+
+    const sources = {
+
+        Hydropower:
+            lastValues.Vattenkraft ?? 0,
+
+        "Nuclear power":
+            lastValues.Karnkraft ?? 0,
+
+        "Wind power":
+            lastValues.Vindkraft ?? 0,
+
+        "Solar power":
+            lastValues.Solkraft ?? 0,
+
+        "Non-renewable thermal":
+            lastValues.VarmekrEjF ?? 0,
+
+        "Renewable thermal":
+            lastValues.VarmekrF ?? 0
+
+    };
+
+    const largestSource =
+        Object.entries(sources)
+            .sort((a, b) => b[1] - a[1])[0];
+
+    // --------------------------------------------------
+    // DISPLAY
+    // --------------------------------------------------
+
+    setValue(
+        document.getElementById("findingRenewable"),
+        lastShare.toFixed(1) + "%"
+    );
+
+    setValue(
+        document.getElementById("findingRenewableText"),
+        "Renewable electricity in " +
+        formatMonth(lastMonth)
+    );
+
+    setValue(
+        document.getElementById("findingChange"),
+        changeText
+    );
+
+    setValue(
+        document.getElementById("findingChangeText"),
+        "Change from " +
+        formatMonth(firstMonth) +
+        " to " +
+        formatMonth(lastMonth)
+    );
+
+    setValue(
+        document.getElementById("findingLargest"),
+        largestSource[0]
+    );
+
+    setValue(
+        document.getElementById("findingLargestText"),
+        formatNumber(largestSource[1]) +
+        " GWh in " +
+        formatMonth(lastMonth)
     );
 
 }

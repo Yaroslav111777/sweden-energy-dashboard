@@ -509,3 +509,138 @@ footer p {
         height: 400px;
     }
 }
+/* ======================================================
+   KEY FINDINGS
+   ====================================================== */
+
+.findings-section {
+    margin-bottom: 60px;
+}
+
+.findings-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.finding-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.finding-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f1f5f9;
+    border-radius: 12px;
+
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.finding-card > div {
+    min-width: 0;
+}
+
+.finding-label {
+    display: block;
+
+    font-size: 12px;
+    font-weight: bold;
+    color: #64748b;
+
+    margin-bottom: 6px;
+}
+
+.finding-card strong {
+    display: block;
+
+    font-size: 27px;
+    line-height: 1.2;
+
+    color: #111827;
+
+    margin-bottom: 8px;
+}
+
+.finding-card p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+
+    .findings-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+/* ======================================================
+   METHODOLOGY
+   ====================================================== */
+
+.methodology-section {
+    margin-bottom: 60px;
+}
+
+.methodology-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.methodology-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.methodology-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f1f5f9;
+    border-radius: 12px;
+
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.methodology-card h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: #111827;
+}
+
+.methodology-card p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+
+    .methodology-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

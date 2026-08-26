@@ -1,156 +1,96 @@
-const monthSelect =
-document.getElementById("monthSelector");
+const monthSelect = document.getElementById("monthSelector");
 
-const totalProduction =
-document.getElementById("totalProduction");
+const totalProduction = document.getElementById("totalProduction");
+const selectedPeriod = document.getElementById("selectedPeriod");
 
-const selectedPeriod =
-document.getElementById("selectedPeriod");
+const renewableValue = document.getElementById("renewableValue");
+const renewableGwh = document.getElementById("renewableGwh");
 
-// ======================================================
-// OVERVIEW ELEMENTS
-// ======================================================
+const overviewNuclearValue = document.getElementById("overviewNuclearValue");
 
-const renewableValue =
-document.getElementById("renewableValue");
+const overviewNuclearGwh = document.getElementById("overviewNuclearGwh");
 
-const renewableGwh =
-document.getElementById("renewableGwh");
+const nonRenewableValue = document.getElementById("nonRenewableValue");
 
-const overviewNuclearValue =
-document.getElementById("overviewNuclearValue");
+const nonRenewableGwh = document.getElementById("nonRenewableGwh");
 
-const overviewNuclearGwh =
-document.getElementById("overviewNuclearGwh");
+const hydroValue = document.getElementById("hydroValue");
+const hydroGwh = document.getElementById("hydroGwh");
 
-const nonRenewableValue =
-document.getElementById("nonRenewableValue");
+const nuclearValue = document.getElementById("nuclearValue");
+const nuclearGwh = document.getElementById("nuclearGwh");
 
-const nonRenewableGwh =
-document.getElementById("nonRenewableGwh");
+const windValue = document.getElementById("windValue");
+const windGwh = document.getElementById("windGwh");
 
-// ======================================================
-// ENERGY CARD ELEMENTS
-// ======================================================
-
-const hydroValue =
-document.getElementById("hydroValue");
-
-const hydroGwh =
-document.getElementById("hydroGwh");
-
-const nuclearValue =
-document.getElementById("nuclearValue");
-
-const nuclearGwh =
-document.getElementById("nuclearGwh");
-
-const windValue =
-document.getElementById("windValue");
-
-const windGwh =
-document.getElementById("windGwh");
-
-const solarValue =
-document.getElementById("solarValue");
-
-const solarGwh =
-document.getElementById("solarGwh");
+const solarValue = document.getElementById("solarValue");
+const solarGwh = document.getElementById("solarGwh");
 
 const thermalNonRenewableValue =
-document.getElementById(
-"thermalNonRenewableValue"
-);
+    document.getElementById("thermalNonRenewableValue");
 
 const thermalNonRenewableGwh =
-document.getElementById(
-"thermalNonRenewableGwh"
-);
+    document.getElementById("thermalNonRenewableGwh");
 
 const thermalRenewableValue =
-document.getElementById(
-"thermalRenewableValue"
-);
+    document.getElementById("thermalRenewableValue");
 
 const thermalRenewableGwh =
-document.getElementById(
-"thermalRenewableGwh"
-);
-
-// ======================================================
-// CHART ELEMENTS
-// ======================================================
+    document.getElementById("thermalRenewableGwh");
 
 const productionCanvas =
-document.getElementById(
-"productionChart"
-);
+    document.getElementById("productionChart");
 
 const historyCanvas =
-document.getElementById(
-"historyChart"
-);
+    document.getElementById("historyChart");
 
 let productionChart = null;
 let historyChart = null;
 
 let allRows = [];
 
+
 // ======================================================
 // LOAD CSV
 // ======================================================
 
 fetch("./data/electricity-production.csv")
+    .then(response => {
 
-```
-.then(response => {
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
 
-    if (!response.ok) {
-        throw new Error(
-            "HTTP " + response.status
+        return response.text();
+
+    })
+    .then(csv => {
+
+        allRows = parseCSV(csv);
+
+        if (!allRows.length) {
+            throw new Error("CSV contains no data");
+        }
+
+        setupMonthSelector(allRows);
+
+        updateDashboard();
+
+        updateHistoryChart();
+
+    })
+    .catch(error => {
+
+        console.error(
+            "Could not load electricity data:",
+            error
         );
-    }
-
-    return response.text();
-
-})
-
-.then(csv => {
-
-    allRows = parseCSV(csv);
-
-    if (!allRows.length) {
-        throw new Error(
-            "CSV contains no data"
-        );
-    }
-
-    setupMonthSelector(
-        allRows
-    );
-
-    updateDashboard();
-
-    updateHistoryChart();
-
-})
-
-.catch(error => {
-
-    console.error(
-        "Could not load electricity data:",
-        error
-    );
-
-    if (monthSelect) {
 
         monthSelect.innerHTML =
             "<option>Could not load data</option>";
 
-    }
+    });
 
-});
-```
 
 // ======================================================
 // CSV PARSER
@@ -158,80 +98,67 @@ fetch("./data/electricity-production.csv")
 
 function parseCSV(csv) {
 
-```
-const lines =
-    csv
-        .trim()
-        .split(/\r?\n/);
+    const lines =
+        csv
+            .trim()
+            .split(/\r?\n/);
 
+    if (lines.length < 2) {
+        return [];
+    }
 
-if (lines.length < 2) {
-    return [];
-}
+    return lines
+        .slice(1)
+        .map(line => {
 
+            const parts =
+                line.split(",");
 
-return lines
+            const month =
+                parts[0]
+                    ?.replace(/"/g, "")
+                    .trim();
 
-    .slice(1)
+            const type =
+                parts[1]
+                    ?.replace(/"/g, "")
+                    .trim();
 
-    .map(line => {
+            const rawValue =
+                parts[2]
+                    ?.replace(/"/g, "")
+                    .trim();
 
-        const parts =
-            line.split(",");
+            let gwh = null;
 
+            if (
+                rawValue !== undefined &&
+                rawValue !== ""
+            ) {
 
-        const month =
-            parts[0]
-                ?.replace(/"/g, "")
-                .trim();
+                const number =
+                    Number(rawValue);
 
+                if (!Number.isNaN(number)) {
+                    gwh = number;
+                }
 
-        const type =
-            parts[1]
-                ?.replace(/"/g, "")
-                .trim();
-
-
-        const rawValue =
-            parts[2]
-                ?.replace(/"/g, "")
-                .trim();
-
-
-        let gwh = null;
-
-
-        if (
-            rawValue !== undefined &&
-            rawValue !== ""
-        ) {
-
-            const number =
-                Number(rawValue);
-
-
-            if (!Number.isNaN(number)) {
-                gwh = number;
             }
 
-        }
+            return {
+                month,
+                type,
+                gwh
+            };
 
-
-        return {
-            month,
-            type,
-            gwh
-        };
-
-    })
-
-    .filter(row =>
-        row.month &&
-        row.type
-    );
-```
+        })
+        .filter(row =>
+            row.month &&
+            row.type
+        );
 
 }
+
 
 // ======================================================
 // MONTH SELECTOR
@@ -239,53 +166,38 @@ return lines
 
 function setupMonthSelector(rows) {
 
-```
-const months = [
+    const months = [
+        ...new Set(
+            rows.map(row => row.month)
+        )
+    ];
 
-    ...new Set(
-        rows.map(row => row.month)
-    )
+    monthSelect.innerHTML = "";
 
-];
+    months.forEach(month => {
 
+        const option =
+            document.createElement("option");
 
-monthSelect.innerHTML = "";
+        option.value = month;
 
+        option.textContent =
+            formatMonth(month);
 
-months.forEach(month => {
+        monthSelect.appendChild(option);
 
-    const option =
-        document.createElement(
-            "option"
-        );
+    });
 
+    monthSelect.value =
+        months[months.length - 1];
 
-    option.value = month;
-
-    option.textContent =
-        formatMonth(month);
-
-
-    monthSelect.appendChild(
-        option
+    monthSelect.addEventListener(
+        "change",
+        updateDashboard
     );
 
-});
-
-
-// Latest month
-
-monthSelect.value =
-    months[months.length - 1];
-
-
-monthSelect.addEventListener(
-    "change",
-    updateDashboard
-);
-```
-
 }
+
 
 // ======================================================
 // UPDATE DASHBOARD
@@ -293,257 +205,199 @@ monthSelect.addEventListener(
 
 function updateDashboard() {
 
-```
-const selectedMonth =
-    monthSelect.value;
+    const selectedMonth =
+        monthSelect.value;
 
+    const values =
+        getMonthValues(selectedMonth);
 
-const values =
-    getMonthValues(
-        selectedMonth
-    );
+    const total =
+        values.Total ?? 0;
 
+    const hydro =
+        values.Vattenkraft ?? 0;
 
-const total =
-    values.Total ?? 0;
+    const nuclear =
+        values.Karnkraft ?? 0;
 
+    const wind =
+        values.Vindkraft ?? 0;
 
-const hydro =
-    values.Vattenkraft ?? 0;
+    const solar =
+        values.Solkraft ?? 0;
 
+    const thermalNonRenewable =
+        values.VarmekrEjF ?? 0;
 
-const nuclear =
-    values.Karnkraft ?? 0;
+    const thermalRenewable =
+        values.VarmekrF ?? 0;
 
-
-const wind =
-    values.Vindkraft ?? 0;
-
-
-const solar =
-    values.Solkraft ?? 0;
-
-
-const thermalNonRenewable =
-    values.VarmekrEjF ?? 0;
-
-
-const thermalRenewable =
-    values.VarmekrF ?? 0;
-
-
-// ==================================================
-// CALCULATED CATEGORIES
-// ==================================================
-
-const renewable =
+    const renewable =
     hydro +
     wind +
     solar +
     thermalRenewable;
 
-
 const nonRenewable =
     thermalNonRenewable;
 
 
-// ==================================================
-// TOTAL
-// ==================================================
+    // ==================================================
+    // TOTAL
+    // ==================================================
 
-setValue(
-    totalProduction,
-    formatNumber(total)
-);
+    totalProduction.textContent =
+        formatNumber(total);
 
+    selectedPeriod.textContent =
+        formatMonth(selectedMonth);
 
-setValue(
-    selectedPeriod,
-    formatMonth(selectedMonth)
-);
-
-
-// ==================================================
-// OVERVIEW
+        // ==================================================
+// ENERGY OVERVIEW
 // ==================================================
 
 setValue(
     renewableValue,
-    percentage(
-        renewable,
-        total
-    )
+    percentage(renewable, total)
 );
-
 
 setValue(
     renewableGwh,
-    formatNumber(renewable) +
-    " GWh"
+    formatNumber(renewable) + " GWh"
 );
-
 
 setValue(
     overviewNuclearValue,
-    percentage(
-        nuclear,
-        total
-    )
+    percentage(nuclear, total)
 );
-
 
 setValue(
     overviewNuclearGwh,
-    formatNumber(nuclear) +
-    " GWh"
+    formatNumber(nuclear) + " GWh"
 );
-
 
 setValue(
     nonRenewableValue,
-    percentage(
-        nonRenewable,
-        total
-    )
+    percentage(nonRenewable, total)
 );
-
 
 setValue(
     nonRenewableGwh,
-    formatNumber(nonRenewable) +
-    " GWh"
+    formatNumber(nonRenewable) + " GWh"
 );
 
 
-// ==================================================
-// HYDRO
-// ==================================================
+    // ==================================================
+    // HYDRO
+    // ==================================================
 
-setValue(
-    hydroValue,
-    percentage(
-        hydro,
-        total
-    )
-);
+    setValue(
+        hydroValue,
+        percentage(hydro, total)
+    );
 
-
-setValue(
-    hydroGwh,
-    formatNumber(hydro)
-);
+    setValue(
+        hydroGwh,
+        formatNumber(hydro)
+    );
 
 
-// ==================================================
-// NUCLEAR
-// ==================================================
+    // ==================================================
+    // NUCLEAR
+    // ==================================================
 
-setValue(
-    nuclearValue,
-    percentage(
-        nuclear,
-        total
-    )
-);
+    setValue(
+        nuclearValue,
+        percentage(nuclear, total)
+    );
 
-
-setValue(
-    nuclearGwh,
-    formatNumber(nuclear)
-);
+    setValue(
+        nuclearGwh,
+        formatNumber(nuclear)
+    );
 
 
-// ==================================================
-// WIND
-// ==================================================
+    // ==================================================
+    // WIND
+    // ==================================================
 
-setValue(
-    windValue,
-    percentage(
-        wind,
-        total
-    )
-);
+    setValue(
+        windValue,
+        percentage(wind, total)
+    );
 
-
-setValue(
-    windGwh,
-    formatNumber(wind)
-);
+    setValue(
+        windGwh,
+        formatNumber(wind)
+    );
 
 
-// ==================================================
-// SOLAR
-// ==================================================
+    // ==================================================
+    // SOLAR
+    // ==================================================
 
-setValue(
-    solarValue,
-    percentage(
-        solar,
-        total
-    )
-);
+    setValue(
+        solarValue,
+        percentage(solar, total)
+    );
 
-
-setValue(
-    solarGwh,
-    formatNumber(solar)
-);
+    setValue(
+        solarGwh,
+        formatNumber(solar)
+    );
 
 
-// ==================================================
-// NON-RENEWABLE THERMAL
-// ==================================================
+    // ==================================================
+    // NON-RENEWABLE THERMAL
+    // ==================================================
 
-setValue(
-    thermalNonRenewableValue,
-    percentage(
-        thermalNonRenewable,
-        total
-    )
-);
+    setValue(
+        thermalNonRenewableValue,
+        percentage(
+            thermalNonRenewable,
+            total
+        )
+    );
 
-
-setValue(
-    thermalNonRenewableGwh,
-    formatNumber(
-        thermalNonRenewable
-    )
-);
-
-
-// ==================================================
-// RENEWABLE THERMAL
-// ==================================================
-
-setValue(
-    thermalRenewableValue,
-    percentage(
-        thermalRenewable,
-        total
-    )
-);
+    setValue(
+        thermalNonRenewableGwh,
+        formatNumber(
+            thermalNonRenewable
+        )
+    );
 
 
-setValue(
-    thermalRenewableGwh,
-    formatNumber(
-        thermalRenewable
-    )
-);
+    // ==================================================
+    // RENEWABLE THERMAL
+    // ==================================================
+
+    setValue(
+        thermalRenewableValue,
+        percentage(
+            thermalRenewable,
+            total
+        )
+    );
+
+    setValue(
+        thermalRenewableGwh,
+        formatNumber(
+            thermalRenewable
+        )
+    );
 
 
-// ==================================================
-// CURRENT MONTH CHART
-// ==================================================
+    // ==================================================
+    // CHART
+    // ==================================================
 
-updateProductionChart(
-    selectedMonth,
-    values
-);
-```
+    updateProductionChart(
+        selectedMonth,
+        values
+    );
 
 }
+
 
 // ======================================================
 // GET MONTH VALUES
@@ -551,80 +405,61 @@ updateProductionChart(
 
 function getMonthValues(month) {
 
-```
-const values = {};
+    const values = {};
 
+    allRows
+        .filter(row =>
+            row.month === month
+        )
+        .forEach(row => {
 
-allRows
+            values[row.type] =
+                row.gwh;
 
-    .filter(row =>
-        row.month === month
-    )
+        });
 
-    .forEach(row => {
-
-        values[row.type] =
-            row.gwh;
-
-    });
-
-
-return values;
-```
+    return values;
 
 }
+
 
 // ======================================================
-// SET VALUE SAFELY
+// SET VALUE
 // ======================================================
 
-function setValue(
-element,
-value
-) {
+function setValue(element, value) {
 
-```
-if (!element) {
-    return;
-}
+    if (!element) {
+        return;
+    }
 
-
-element.textContent =
-    value;
-```
+    element.textContent =
+        value;
 
 }
+
 
 // ======================================================
 // PERCENTAGE
 // ======================================================
 
-function percentage(
-value,
-total
-) {
+function percentage(value, total) {
 
-```
-if (
-    total <= 0 ||
-    value === null ||
-    value === undefined ||
-    Number.isNaN(value)
-) {
+    if (
+        total <= 0 ||
+        value === null ||
+        value === undefined ||
+        Number.isNaN(value)
+    ) {
+        return "—";
+    }
 
-    return "—";
-
-}
-
-
-return (
-
-    (value / total) * 100
-
-).toFixed(1) + "%";
-```
+    return (
+        (value / total) * 100
+    ).toFixed(1) + "%";
 
 }
+
 
 // ======================================================
 // NUMBER FORMAT
@@ -632,23 +467,19 @@ return (
 
 function formatNumber(value) {
 
-```
-if (
-    value === null ||
-    value === undefined ||
-    Number.isNaN(value)
-) {
+    if (
+        value === null ||
+        value === undefined ||
+        Number.isNaN(value)
+    ) {
+        return "—";
+    }
 
-    return "—";
-
-}
-
-
-return Number(value)
-    .toLocaleString("en-US");
-```
+    return Number(value)
+        .toLocaleString("en-US");
 
 }
+
 
 // ======================================================
 // FORMAT MONTH
@@ -656,187 +487,144 @@ return Number(value)
 
 function formatMonth(month) {
 
-```
-if (!month) {
-    return "—";
-}
+    if (!month) {
+        return "—";
+    }
 
+    const parts =
+        month.split("M");
 
-const parts =
-    month.split("M");
+    const year =
+        parts[0];
 
+    const monthNumber =
+        Number(parts[1]);
 
-const year =
-    parts[0];
+    const monthNames = [
 
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
 
-const monthNumber =
-    Number(parts[1]);
+    ];
 
-
-const monthNames = [
-
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-
-];
-
-
-return (
-
-    monthNames[
-        monthNumber - 1
-    ] +
-
-    " " +
-
-    year
-
-);
-```
+    return (
+        monthNames[monthNumber - 1] +
+        " " +
+        year
+    );
 
 }
+
 
 // ======================================================
 // CURRENT MONTH CHART
 // ======================================================
 
-function updateProductionChart(
-month,
-values
-) {
+function updateProductionChart(month, values) {
 
-```
-if (!productionCanvas) {
-    return;
-}
+    if (!productionCanvas) {
+        return;
+    }
 
+    const labels = [
+        "Hydropower",
+        "Nuclear",
+        "Wind",
+        "Solar",
+        "Non-renewable thermal",
+        "Renewable thermal"
+    ];
 
-const labels = [
+    const data = [
+        values.Vattenkraft ?? 0,
+        values.Karnkraft ?? 0,
+        values.Vindkraft ?? 0,
+        values.Solkraft ?? 0,
+        values.VarmekrEjF ?? 0,
+        values.VarmekrF ?? 0
+    ];
 
-    "Hydropower",
-    "Nuclear",
-    "Wind",
-    "Solar",
-    "Non-renewable thermal",
-    "Renewable thermal"
+    if (productionChart) {
 
-];
+        productionChart.data.labels = labels;
+        productionChart.data.datasets[0].data = data;
+        productionChart.data.datasets[0].label = formatMonth(month);
 
+        productionChart.update();
 
-const data = [
+        return;
+    }
 
-    values.Vattenkraft ?? 0,
-    values.Karnkraft ?? 0,
-    values.Vindkraft ?? 0,
-    values.Solkraft ?? 0,
-    values.VarmekrEjF ?? 0,
-    values.VarmekrF ?? 0
-
-];
-
-
-if (productionChart) {
-
-    productionChart.data.labels =
-        labels;
-
-
-    productionChart.data.datasets[0].data =
-        data;
-
-
-    productionChart.data.datasets[0].label =
-        formatMonth(month);
-
-
-    productionChart.update();
-
-    return;
-
-}
-
-
-productionChart =
-    new Chart(
+    productionChart = new Chart(
         productionCanvas,
         {
-
             type: "bar",
 
             data: {
-
-                labels,
+                labels: labels,
 
                 datasets: [
-
                     {
-
-                        label:
-                            formatMonth(month),
-
-                        data,
-
-                        borderWidth: 1
-
+                        label: formatMonth(month),
+                        data: data,
+                        borderWidth: 0,
+                        borderRadius: 6,
+                        borderSkipped: false
                     }
-
                 ]
-
             },
 
             options: {
 
                 responsive: true,
-
                 maintainAspectRatio: false,
 
                 interaction: {
-
                     mode: "index",
-
                     intersect: false
-
                 },
 
                 plugins: {
 
                     legend: {
-
                         display: false
-
                     },
 
                     tooltip: {
 
+                        backgroundColor: "#111827",
+                        padding: 12,
+
+                        titleFont: {
+                            size: 14,
+                            weight: "bold"
+                        },
+
+                        bodyFont: {
+                            size: 13
+                        },
+
                         callbacks: {
 
-                            label:
-                                function(context) {
+                            label: function(context) {
 
-                                    return (
+                                return (
+                                    " " +
+                                    formatNumber(context.raw) +
+                                    " GWh"
+                                );
 
-                                        " " +
-
-                                        formatNumber(
-                                            context.raw
-                                        ) +
-
-                                        " GWh"
-
-                                    );
-
-                                }
+                            }
 
                         }
 
@@ -846,16 +634,37 @@ productionChart =
 
                 scales: {
 
+                    x: {
+
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+                            color: "#64748b",
+                            font: {
+                                size: 12
+                            }
+                        }
+
+                    },
+
                     y: {
 
                         beginAtZero: true,
 
+                        grid: {
+                            color: "#e5e7eb"
+                        },
+
+                        ticks: {
+                            color: "#64748b"
+                        },
+
                         title: {
-
                             display: true,
-
-                            text: "GWh"
-
+                            text: "GWh",
+                            color: "#64748b"
                         }
 
                     }
@@ -866,7 +675,6 @@ productionChart =
 
         }
     );
-```
 
 }
 
@@ -876,75 +684,56 @@ productionChart =
 
 function updateHistoryChart() {
 
-```
-if (!historyCanvas) {
-    return;
-}
+    if (!historyCanvas) {
+        return;
+    }
 
-
-const months = [
-
-    ...new Set(
-        allRows.map(
-            row => row.month
+    const months = [
+        ...new Set(
+            allRows.map(row => row.month)
         )
-    )
+    ];
 
-];
+    const hydroData = [];
+    const nuclearData = [];
+    const windData = [];
+    const solarData = [];
+    const thermalNonRenewableData = [];
+    const thermalRenewableData = [];
 
+    months.forEach(month => {
 
-const hydroData = [];
-const nuclearData = [];
-const windData = [];
-const solarData = [];
-const thermalNonRenewableData = [];
-const thermalRenewableData = [];
+        const values = getMonthValues(month);
 
+        hydroData.push(
+            values.Vattenkraft ?? 0
+        );
 
-months.forEach(month => {
+        nuclearData.push(
+            values.Karnkraft ?? 0
+        );
 
-    const values =
-        getMonthValues(month);
+        windData.push(
+            values.Vindkraft ?? 0
+        );
 
+        solarData.push(
+            values.Solkraft ?? 0
+        );
 
-    hydroData.push(
-        values.Vattenkraft ?? 0
-    );
+        thermalNonRenewableData.push(
+            values.VarmekrEjF ?? 0
+        );
 
+        thermalRenewableData.push(
+            values.VarmekrF ?? 0
+        );
 
-    nuclearData.push(
-        values.Karnkraft ?? 0
-    );
+    });
 
+    const labels = months.map(formatMonth);
 
-    windData.push(
-        values.Vindkraft ?? 0
-    );
-
-
-    solarData.push(
-        values.Solkraft ?? 0
-    );
-
-
-    thermalNonRenewableData.push(
-        values.VarmekrEjF ?? 0
-    );
-
-
-    thermalRenewableData.push(
-        values.VarmekrF ?? 0
-    );
-
-});
-
-
-const labels =
-    months.map(formatMonth);
-
-
-historyChart =
-    new Chart(
+    historyChart = new Chart(
         historyCanvas,
         {
 
@@ -957,91 +746,51 @@ historyChart =
                 datasets: [
 
                     {
-
-                        label: "Hydro",
-
+                        label: "Hydropower",
                         data: hydroData,
-
                         tension: 0.25,
-
                         borderWidth: 2,
-
                         pointRadius: 0
-
                     },
 
                     {
-
                         label: "Nuclear",
-
                         data: nuclearData,
-
                         tension: 0.25,
-
                         borderWidth: 2,
-
                         pointRadius: 0
-
                     },
 
                     {
-
                         label: "Wind",
-
                         data: windData,
-
                         tension: 0.25,
-
                         borderWidth: 2,
-
                         pointRadius: 0
-
                     },
 
                     {
-
                         label: "Solar",
-
                         data: solarData,
-
                         tension: 0.25,
-
                         borderWidth: 2,
-
                         pointRadius: 0
-
                     },
 
                     {
-
-                        label:
-                            "Non-renewable thermal",
-
-                        data:
-                            thermalNonRenewableData,
-
+                        label: "Non-renewable thermal",
+                        data: thermalNonRenewableData,
                         tension: 0.25,
-
                         borderWidth: 2,
-
                         pointRadius: 0
-
                     },
 
                     {
-
-                        label:
-                            "Renewable thermal",
-
-                        data:
-                            thermalRenewableData,
-
+                        label: "Renewable thermal",
+                        data: thermalRenewableData,
                         tension: 0.25,
-
                         borderWidth: 2,
-
                         pointRadius: 0
-
                     }
 
                 ]
@@ -1051,43 +800,55 @@ historyChart =
             options: {
 
                 responsive: true,
-
                 maintainAspectRatio: false,
 
                 interaction: {
-
                     mode: "index",
-
                     intersect: false
-
                 },
 
                 plugins: {
 
+                    legend: {
+
+                        position: "bottom",
+
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: "line",
+                            padding: 20,
+                            color: "#475569"
+                        }
+
+                    },
+
                     tooltip: {
+
+                        backgroundColor: "#111827",
+                        padding: 12,
+
+                        titleFont: {
+                            size: 14,
+                            weight: "bold"
+                        },
+
+                        bodyFont: {
+                            size: 13
+                        },
 
                         callbacks: {
 
-                            label:
-                                function(context) {
+                            label: function(context) {
 
-                                    return (
+                                return (
+                                    " " +
+                                    context.dataset.label +
+                                    ": " +
+                                    formatNumber(context.raw) +
+                                    " GWh"
+                                );
 
-                                        " " +
-
-                                        context.dataset.label +
-
-                                        ": " +
-
-                                        formatNumber(
-                                            context.raw
-                                        ) +
-
-                                        " GWh"
-
-                                    );
-
-                                }
+                            }
 
                         }
 
@@ -1099,23 +860,45 @@ historyChart =
 
                     x: {
 
-                        ticks: {
+                        grid: {
+                            display: false
+                        },
 
-                            maxTicksLimit: 12
+                       ticks: {
+                          color: "#64748b",
+                         maxRotation: 0,
+                         autoSkip: false,
+                         callback: function(value, index) {
+                             const label = this.getLabelForValue(value);
 
-                        }
+                             if (label.includes("January")) {
+                                 return label.split(" ")[1];
+                              }
 
+                             return "";
+                         }           
+                       }
                     },
 
                     y: {
 
                         beginAtZero: true,
 
+                        grid: {
+                            color: "#e5e7eb"
+                        },
+
+                        ticks: {
+                            color: "#64748b"
+                        },
+
                         title: {
 
                             display: true,
 
-                            text: "GWh"
+                            text: "GWh",
+
+                            color: "#64748b"
 
                         }
 
@@ -1127,6 +910,5 @@ historyChart =
 
         }
     );
-```
 
 }

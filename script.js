@@ -78,6 +78,8 @@ fetch("./data/electricity-production.csv")
 
         updateHistoryChart();
 
+        updateRenewableChart();
+
     })
     .catch(error => {
 
@@ -897,6 +899,381 @@ function updateHistoryChart() {
                             display: true,
 
                             text: "GWh",
+
+                            color: "#64748b"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+// ======================================================
+// RENEWABLE ELECTRICITY SHARE CHART
+// ======================================================
+
+const renewableCanvas =
+    document.getElementById("renewableChart");
+
+let renewableChart = null;
+
+function updateRenewableChart() {
+
+    if (!renewableCanvas) {
+        return;
+    }
+
+    const months = [
+        ...new Set(
+            allRows.map(row => row.month)
+        )
+    ];
+
+    const renewableData = [];
+
+    months.forEach(month => {
+
+        const values = getMonthValues(month);
+
+        const total =
+            values.Total ?? 0;
+
+        const renewable =
+            (values.Vattenkraft ?? 0) +
+            (values.Vindkraft ?? 0) +
+            (values.Solkraft ?? 0) +
+            (values.VarmekrF ?? 0);
+
+        const share =
+            total > 0
+                ? (renewable / total) * 100
+                : null;
+
+        renewableData.push(share);
+    });
+
+    const labels =
+        months.map(formatMonth);
+
+    renewableChart = new Chart(
+        renewableCanvas,
+        {
+            type: "line",
+
+            data: {
+
+                labels,
+
+                datasets: [
+                    {
+                        label: "Renewable electricity share",
+                        data: renewableData,
+                        tension: 0.25,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: "index",
+                    intersect: false
+                },
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+
+                        backgroundColor: "#111827",
+                        padding: 12,
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return (
+                                    " Renewable electricity: " +
+                                    context.raw.toFixed(1) +
+                                    "%"
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+
+                            color: "#64748b",
+
+                            maxRotation: 0,
+                            autoSkip: false,
+
+                            callback: function(value, index) {
+
+                                const label =
+                                    this.getLabelForValue(value);
+
+                                if (
+                                    label.includes("January")
+                                ) {
+                                    return label.split(" ")[1];
+                                }
+
+                                return "";
+
+                            }
+
+                        }
+
+                    },
+
+                    y: {
+
+                        beginAtZero: true,
+                        max: 100,
+
+                        grid: {
+                            color: "#e5e7eb"
+                        },
+
+                        ticks: {
+
+                            color: "#64748b",
+
+                            callback: function(value) {
+                                return value + "%";
+                            }
+
+                        },
+
+                        title: {
+
+                            display: true,
+                            text: "Renewable share",
+                            color: "#64748b"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+// ======================================================
+// RENEWABLE TRANSITION CHART
+// ======================================================
+
+function updateRenewableChart() {
+
+    const renewableCanvas =
+        document.getElementById("renewableChart");
+
+    if (!renewableCanvas) {
+        return;
+    }
+
+    const months = [
+        ...new Set(
+            allRows.map(row => row.month)
+        )
+    ];
+
+    const renewableData = [];
+
+    months.forEach(month => {
+
+        const values =
+            getMonthValues(month);
+
+        const total =
+            values.Total ?? 0;
+
+        const hydro =
+            values.Vattenkraft ?? 0;
+
+        const wind =
+            values.Vindkraft ?? 0;
+
+        const solar =
+            values.Solkraft ?? 0;
+
+        const renewableThermal =
+            values.VarmekrF ?? 0;
+
+        const renewable =
+            hydro +
+            wind +
+            solar +
+            renewableThermal;
+
+        const share =
+            total > 0
+                ? (renewable / total) * 100
+                : 0;
+
+        renewableData.push(
+            Number(share.toFixed(1))
+        );
+
+    });
+
+    new Chart(
+        renewableCanvas,
+        {
+
+            type: "line",
+
+            data: {
+
+                labels: months.map(formatMonth),
+
+                datasets: [
+
+                    {
+                        label: "Renewable electricity share",
+                        data: renewableData,
+                        tension: 0.25,
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        fill: false
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: "index",
+                    intersect: false
+                },
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+
+                        backgroundColor: "#111827",
+                        padding: 12,
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return (
+                                    " " +
+                                    context.raw +
+                                    "%"
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+
+                            color: "#64748b",
+
+                            maxRotation: 0,
+
+                            autoSkip: false,
+
+                            callback: function(value, index) {
+
+                                const label =
+                                    this.getLabelForValue(value);
+
+                                if (
+                                    label.includes("January")
+                                ) {
+
+                                    return label.split(" ")[1];
+
+                                }
+
+                                return "";
+
+                            }
+
+                        }
+
+                    },
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        suggestedMax: 100,
+
+                        grid: {
+                            color: "#e5e7eb"
+                        },
+
+                        ticks: {
+                            color: "#64748b",
+                            callback: function(value) {
+                                return value + "%";
+                            }
+                        },
+
+                        title: {
+
+                            display: true,
+
+                            text: "Renewable share",
 
                             color: "#64748b"
 

@@ -1,404 +1,591 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Sweden Energy Transition</title>
 
-<title>Sweden Energy Transition</title>
+    <link rel="stylesheet" href="style.css">
 
-<link rel="stylesheet" href="style.css">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
 
+    <!-- ==================================================
+         HEADER
+         ================================================== -->
 
-<header class="hero">
+    <header class="hero">
 
-    <div class="hero-content">
-        <span class="eyebrow">ENERGY SYSTEM DASHBOARD</span>
+        <div class="hero-content">
 
-        <h1>Sweden Energy Transition</h1>
-
-        <p>
-            Understanding Sweden's electricity system
-        </p>
-    </div>
-
-    <div class="hero-badge">
-        🇸🇪 Sweden
-    </div>
-
-</header>
-
-
-<main>
-
-    <!-- MONTH SELECTOR -->
-
-    <section class="controls">
-
-        <div class="control-info">
-
-            <span class="control-label">
-                Data period
+            <span class="eyebrow">
+                ENERGY SYSTEM DASHBOARD
             </span>
 
-            <span class="control-description">
-                Select a month to explore Sweden's electricity production
-            </span>
+            <h1>
+                Sweden Energy Transition
+            </h1>
 
-        </div>
-
-        <select id="monthSelector">
-            <option>Loading...</option>
-        </select>
-
-    </section>
-
-
-    <!-- TOTAL PRODUCTION -->
-
-    <section class="total-card">
-
-        <div>
-
-            <p class="section-label">
-                Total electricity production
+            <p>
+                Understanding Sweden's electricity system
             </p>
 
-            <div class="total-number">
-                <span id="totalProduction">—</span>
-                <span class="total-unit">GWh</span>
+        </div>
+
+        <div class="hero-badge">
+
+            <span class="status-dot"></span>
+
+            <span>
+                SYSTEM ACTIVE
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- ==================================================
+         NAVIGATION
+         ================================================== -->
+
+    <nav class="dashboard-nav" aria-label="Dashboard navigation">
+
+        <button type="button" data-target="overview">
+            Overview
+        </button>
+
+        <button type="button" data-target="findings">
+            Key Findings
+        </button>
+
+        <button type="button" data-target="mix">
+            Electricity Mix
+        </button>
+
+        <button type="button" data-target="charts">
+            Charts
+        </button>
+
+        <button type="button" data-target="methodology">
+            Methodology
+        </button>
+
+    </nav>
+
+
+    <!-- ==================================================
+         MAIN
+         ================================================== -->
+
+    <main>
+
+
+        <!-- ==================================================
+             MONTH SELECTOR
+             ================================================== -->
+
+        <section class="controls">
+
+            <div class="control-info">
+
+                <span class="control-label">
+                    Data period
+                </span>
+
+                <span class="control-description">
+                    Select a month to explore Sweden's electricity production
+                </span>
+
             </div>
 
-        </div>
 
-        <div class="total-period">
+            <div class="month-picker">
 
-            <span class="period-label">
-                Selected period
-            </span>
+                <button
+                    class="month-picker-button"
+                    id="monthPickerButton"
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                    aria-label="Select data period"
+                >
 
-            <span id="selectedPeriod">
-                —
-            </span>
+                    <span class="month-picker-icon">
+                        📅
+                    </span>
 
-        </div>
+                    <span
+                        class="month-picker-value"
+                        id="monthPickerValue"
+                    >
+                        Loading...
+                    </span>
 
-    </section>
+                    <span
+                        class="month-picker-arrow"
+                        id="monthPickerArrow"
+                        aria-hidden="true"
+                    >
+                        ↓
+                    </span>
+
+                </button>
 
 
-    <!-- ENERGY OVERVIEW -->
+                <div
+                    class="month-picker-menu"
+                    id="monthPickerMenu"
+                >
 
-    <section class="overview-section">
+                    <div class="month-picker-header">
 
-        <div class="section-heading">
+                        <button
+                            class="year-arrow"
+                            id="previousYear"
+                            type="button"
+                            aria-label="Previous year"
+                        >
+                            ‹
+                        </button>
+
+                        <span id="pickerYear">
+                            2026
+                        </span>
+
+                        <button
+                            class="year-arrow"
+                            id="nextYear"
+                            type="button"
+                            aria-label="Next year"
+                        >
+                            ›
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        class="month-grid"
+                        id="monthGrid"
+                    >
+                        <!-- Months generated by JavaScript -->
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Hidden original selector.
+                 Existing data logic can continue using it. -->
+
+            <select
+                id="monthSelector"
+                class="hidden-month-selector"
+                aria-hidden="true"
+                tabindex="-1"
+            >
+            </select>
+
+        </section>
+
+
+        <!-- ==================================================
+             TOTAL PRODUCTION
+             ================================================== -->
+
+        <section class="total-card">
 
             <div>
+
+                <p class="section-label">
+                    Total electricity production
+                </p>
+
+                <div class="total-number">
+
+                    <span id="totalProduction">
+                        —
+                    </span>
+
+                    <span class="total-unit">
+                        GWh
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="total-period">
+
+                <span class="period-label">
+                    Selected period
+                </span>
+
+                <span id="selectedPeriod">
+                    —
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             ENERGY OVERVIEW
+             ================================================== -->
+
+        <section
+            class="overview-section"
+            id="overview"
+        >
+
+            <div class="section-heading">
+
                 <span class="eyebrow">
                     SYSTEM OVERVIEW
                 </span>
 
-                <h2>Energy Overview</h2>
+                <h2>
+                    Energy Overview
+                </h2>
 
                 <p>
                     Production grouped by energy system category
                 </p>
-            </div>
-
-        </div>
-
-
-        <div class="overview-grid">
-
-            <div class="overview-card renewable-overview">
-
-                <div class="overview-icon">
-                    ♻️
-                </div>
-
-                <div class="overview-content">
-
-                    <span class="overview-label">
-                        Renewable
-                    </span>
-
-                    <strong id="renewableValue">
-                        —
-                    </strong>
-
-                    <span id="renewableGwh">
-                        — GWh
-                    </span>
-
-                </div>
 
             </div>
 
 
-            <div class="overview-card nuclear-overview">
+            <div class="overview-grid">
 
-                <div class="overview-icon">
-                    ⚛️
+
+                <!-- Renewable -->
+
+                <div class="overview-card renewable-overview">
+
+                    <div class="overview-icon">
+                        ♻️
+                    </div>
+
+                    <div class="overview-content">
+
+                        <span class="overview-label">
+                            Renewable
+                        </span>
+
+                        <strong id="renewableValue">
+                            —
+                        </strong>
+
+                        <span id="renewableGwh">
+                            — GWh
+                        </span>
+
+                    </div>
+
                 </div>
 
-                <div class="overview-content">
 
-                    <span class="overview-label">
-                        Nuclear
-                    </span>
+                <!-- Nuclear -->
 
-                    <strong id="overviewNuclearValue">
-                        —
-                    </strong>
+                <div class="overview-card nuclear-overview">
 
-                    <span id="overviewNuclearGwh">
-                        — GWh
-                    </span>
+                    <div class="overview-icon">
+                        ⚛️
+                    </div>
+
+                    <div class="overview-content">
+
+                        <span class="overview-label">
+                            Nuclear
+                        </span>
+
+                        <strong id="overviewNuclearValue">
+                            —
+                        </strong>
+
+                        <span id="overviewNuclearGwh">
+                            — GWh
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Non-renewable -->
+
+                <div class="overview-card fossil-overview">
+
+                    <div class="overview-icon">
+                        🔥
+                    </div>
+
+                    <div class="overview-content">
+
+                        <span class="overview-label">
+                            Non-renewable
+                        </span>
+
+                        <strong id="nonRenewableValue">
+                            —
+                        </strong>
+
+                        <span id="nonRenewableGwh">
+                            — GWh
+                        </span>
+
+                    </div>
 
                 </div>
 
             </div>
 
+        </section>
 
-            <div class="overview-card fossil-overview">
 
-                <div class="overview-icon">
-                    🔥
-                </div>
+        <!-- ==================================================
+             KEY FINDINGS
+             ================================================== -->
 
-                <div class="overview-content">
+        <section
+            class="findings-section"
+            id="findings"
+        >
 
-                    <span class="overview-label">
-                        Non-renewable
-                    </span>
+            <div class="section-heading">
 
-                    <strong id="nonRenewableValue">
-                        —
-                    </strong>
-
-                    <span id="nonRenewableGwh">
-                        — GWh
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-<!-- KEY FINDINGS -->
-
-<section class="findings-section">
-
-    <div class="section-heading">
-
-        <div>
-
-            <span class="eyebrow">
-                KEY FINDINGS
-            </span>
-
-            <h2>What the data shows</h2>
-
-            <p>
-                Key observations from Sweden's electricity production data
-            </p>
-
-        </div>
-
-    </div>
-
-    <div class="findings-grid">
-
-        <div class="finding-card">
-
-            <span class="finding-icon">
-                ♻️
-            </span>
-
-            <div>
-
-                <span class="finding-label">
-                    Renewable share
+                <span class="eyebrow">
+                    KEY FINDINGS
                 </span>
 
-                <strong id="findingRenewable">
-                    —
-                </strong>
+                <h2>
+                    What the data shows
+                </h2>
 
-                <p id="findingRenewableText">
-                    —
+                <p>
+                    Key observations from Sweden's electricity production data
                 </p>
 
             </div>
 
-        </div>
+
+            <div class="findings-grid">
 
 
-        <div class="finding-card">
+                <!-- Renewable share -->
 
-            <span class="finding-icon">
-                📈
-            </span>
+                <div class="finding-card">
 
-            <div>
+                    <span class="finding-icon">
+                        ♻️
+                    </span>
 
-                <span class="finding-label">
-                    Renewable change
+                    <div>
+
+                        <span class="finding-label">
+                            Renewable share
+                        </span>
+
+                        <strong id="findingRenewable">
+                            —
+                        </strong>
+
+                        <p id="findingRenewableText">
+                            —
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Renewable change -->
+
+                <div class="finding-card">
+
+                    <span class="finding-icon">
+                        📈
+                    </span>
+
+                    <div>
+
+                        <span class="finding-label">
+                            Renewable change
+                        </span>
+
+                        <strong id="findingChange">
+                            —
+                        </strong>
+
+                        <p id="findingChangeText">
+                            —
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Largest source -->
+
+                <div class="finding-card">
+
+                    <span class="finding-icon">
+                        ⚡
+                    </span>
+
+                    <div>
+
+                        <span class="finding-label">
+                            Largest source
+                        </span>
+
+                        <strong id="findingLargest">
+                            —
+                        </strong>
+
+                        <p id="findingLargestText">
+                            —
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             METHODOLOGY
+             ================================================== -->
+
+        <section
+            class="methodology-section"
+            id="methodology"
+        >
+
+            <div class="section-heading">
+
+                <span class="eyebrow">
+                    METHODOLOGY
                 </span>
 
-                <strong id="findingChange">
-                    —
-                </strong>
-
-                <p id="findingChangeText">
-                    —
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="finding-card">
-
-            <span class="finding-icon">
-                ⚡
-            </span>
-
-            <div>
-
-                <span class="finding-label">
-                    Largest source
-                </span>
-
-                <strong id="findingLargest">
-                    —
-                </strong>
-
-                <p id="findingLargestText">
-                    —
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- METHODOLOGY -->
-
-<section class="methodology-section">
-
-    <div class="section-heading">
-
-        <div>
-
-            <span class="eyebrow">
-                METHODOLOGY
-            </span>
-
-            <h2>Data and methodology</h2>
-
-            <p>
-                How the electricity production data is structured
-            </p>
-
-        </div>
-
-    </div>
-
-    <div class="methodology-grid">
-
-        <div class="methodology-card">
-
-            <span class="methodology-icon">
-                📊
-            </span>
-
-            <div>
-
-                <h3>Data source</h3>
+                <h2>
+                    Data and methodology
+                </h2>
 
                 <p>
-                    Electricity production data is retrieved from
-                    Statistics Sweden (SCB), table TAB5644.
+                    How the electricity production data is structured
                 </p>
 
             </div>
 
-        </div>
+
+            <div class="methodology-grid">
 
 
-        <div class="methodology-card">
+                <!-- Data source -->
 
-            <span class="methodology-icon">
-                ♻️
-            </span>
+                <div class="methodology-card">
 
-            <div>
+                    <span class="methodology-icon">
+                        📊
+                    </span>
 
-                <h3>Renewable electricity</h3>
+                    <div>
 
-                <p>
-                    Renewable production includes hydropower,
-                    wind power, solar power and renewable thermal
-                    generation.
-                </p>
+                        <h3>
+                            Data source
+                        </h3>
+
+                        <p>
+                            Electricity production data is retrieved from
+                            Statistics Sweden (SCB), table TAB5644.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Renewable electricity -->
+
+                <div class="methodology-card">
+
+                    <span class="methodology-icon">
+                        ♻️
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Renewable electricity
+                        </h3>
+
+                        <p>
+                            Renewable production includes hydropower,
+                            wind power, solar power and renewable thermal
+                            generation.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Time period -->
+
+                <div class="methodology-card">
+
+                    <span class="methodology-icon">
+                        📅
+                    </span>
+
+                    <div>
+
+                        <h3>
+                            Time period
+                        </h3>
+
+                        <p>
+                            Monthly electricity production from January
+                            2017 to June 2026.
+                        </p>
+
+                    </div>
+
+                </div>
 
             </div>
 
-        </div>
+        </section>
 
 
-        <div class="methodology-card">
+        <!-- ==================================================
+             ELECTRICITY MIX
+             ================================================== -->
 
-            <span class="methodology-icon">
-                📅
-            </span>
+        <section id="mix">
 
-            <div>
-
-                <h3>Time period</h3>
-
-                <p>
-                    Monthly electricity production from January
-                    2017 to June 2026.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-    <!-- ELECTRICITY MIX -->
-
-    <section>
-
-        <div class="section-heading">
-
-            <div>
+            <div class="section-heading">
 
                 <span class="eyebrow">
                     ELECTRICITY MIX
                 </span>
 
-                <h2>Electricity Mix</h2>
+                <h2>
+                    Electricity Mix
+                </h2>
 
                 <p>
                     Share of electricity production by source
@@ -406,327 +593,533 @@
 
             </div>
 
-        </div>
+
+            <div class="energy-grid">
 
 
-        <div class="energy-grid">
+                <!-- Hydropower -->
 
+                <div class="energy-card hydro">
 
-            <!-- HYDRO -->
+                    <div class="energy-top">
 
-            <div class="energy-card hydro">
+                        <div class="energy-icon">
+                            💧
+                        </div>
 
-                <div class="energy-top">
+                        <span class="energy-label">
+                            Renewable
+                        </span>
 
-                    <div class="energy-icon">
-                        💧
                     </div>
 
-                    <span class="energy-label">
-                        Renewable
-                    </span>
+                    <h3>
+                        Hydropower
+                    </h3>
 
-                </div>
-
-                <h3>Hydropower</h3>
-
-                <div class="percentage" id="hydroValue">
-                    —
-                </div>
-
-                <div class="gwh-value">
-                    <span id="hydroGwh">—</span> GWh
-                </div>
-
-                <p>
-                    Hydropower generation
-                </p>
-
-            </div>
-
-
-            <!-- NUCLEAR -->
-
-            <div class="energy-card nuclear">
-
-                <div class="energy-top">
-
-                    <div class="energy-icon">
-                        ☢️
+                    <div
+                        class="percentage"
+                        id="hydroValue"
+                    >
+                        —
                     </div>
 
-                    <span class="energy-label">
-                        Low carbon
-                    </span>
+                    <div class="gwh-value">
 
-                </div>
+                        <span id="hydroGwh">
+                            —
+                        </span>
 
-                <h3>Nuclear power</h3>
+                        GWh
 
-                <div class="percentage" id="nuclearValue">
-                    —
-                </div>
-
-                <div class="gwh-value">
-                    <span id="nuclearGwh">—</span> GWh
-                </div>
-
-                <p>
-                    Nuclear electricity generation
-                </p>
-
-            </div>
-
-
-            <!-- WIND -->
-
-            <div class="energy-card wind">
-
-                <div class="energy-top">
-
-                    <div class="energy-icon">
-                        🌬️
                     </div>
 
-                    <span class="energy-label">
-                        Renewable
-                    </span>
+                    <p>
+                        Hydropower generation
+                    </p>
 
-                </div>
-
-                <h3>Wind power</h3>
-
-                <div class="percentage" id="windValue">
-                    —
-                </div>
-
-                <div class="gwh-value">
-                    <span id="windGwh">—</span> GWh
-                </div>
-
-                <p>
-                    Wind electricity generation
-                </p>
-
-            </div>
-
-
-            <!-- SOLAR -->
-
-            <div class="energy-card solar">
-
-                <div class="energy-top">
-
-                    <div class="energy-icon">
-                        ☀️
+                    <div class="energy-click-hint">
+                        Click for details
                     </div>
 
-                    <span class="energy-label">
-                        Renewable
-                    </span>
+                    <div class="energy-details">
 
-                </div>
+                        <div class="energy-details-row">
 
-                <h3>Solar power</h3>
+                            <span class="energy-details-label">
+                                Category
+                            </span>
 
-                <div class="percentage" id="solarValue">
-                    —
-                </div>
+                            <span class="energy-details-value">
+                                Renewable
+                            </span>
 
-                <div class="gwh-value">
-                    <span id="solarGwh">—</span> GWh
-                </div>
+                        </div>
 
-                <p>
-                    Solar electricity generation
-                </p>
-
-            </div>
-
-
-            <!-- NON-RENEWABLE THERMAL -->
-
-            <div class="energy-card thermal">
-
-                <div class="energy-top">
-
-                    <div class="energy-icon">
-                        🔥
                     </div>
 
-                    <span class="energy-label">
-                        Non-renewable
-                    </span>
-
                 </div>
 
-                <h3>Non-renewable thermal</h3>
 
-                <div class="percentage" id="thermalNonRenewableValue">
-                    —
-                </div>
+                <!-- Nuclear -->
 
-                <div class="gwh-value">
-                    <span id="thermalNonRenewableGwh">—</span> GWh
-                </div>
+                <div class="energy-card nuclear">
 
-                <p>
-                    Non-renewable thermal generation
-                </p>
+                    <div class="energy-top">
 
-            </div>
+                        <div class="energy-icon">
+                            ☢️
+                        </div>
 
+                        <span class="energy-label">
+                            Low carbon
+                        </span>
 
-            <!-- RENEWABLE THERMAL -->
-
-            <div class="energy-card renewable-thermal">
-
-                <div class="energy-top">
-
-                    <div class="energy-icon">
-                        ♻️
                     </div>
 
-                    <span class="energy-label">
-                        Renewable
+                    <h3>
+                        Nuclear power
+                    </h3>
+
+                    <div
+                        class="percentage"
+                        id="nuclearValue"
+                    >
+                        —
+                    </div>
+
+                    <div class="gwh-value">
+
+                        <span id="nuclearGwh">
+                            —
+                        </span>
+
+                        GWh
+
+                    </div>
+
+                    <p>
+                        Nuclear electricity generation
+                    </p>
+
+                    <div class="energy-click-hint">
+                        Click for details
+                    </div>
+
+                    <div class="energy-details">
+
+                        <div class="energy-details-row">
+
+                            <span class="energy-details-label">
+                                Category
+                            </span>
+
+                            <span class="energy-details-value">
+                                Low carbon
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Wind -->
+
+                <div class="energy-card wind">
+
+                    <div class="energy-top">
+
+                        <div class="energy-icon">
+                            🌬️
+                        </div>
+
+                        <span class="energy-label">
+                            Renewable
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Wind power
+                    </h3>
+
+                    <div
+                        class="percentage"
+                        id="windValue"
+                    >
+                        —
+                    </div>
+
+                    <div class="gwh-value">
+
+                        <span id="windGwh">
+                            —
+                        </span>
+
+                        GWh
+
+                    </div>
+
+                    <p>
+                        Wind electricity generation
+                    </p>
+
+                    <div class="energy-click-hint">
+                        Click for details
+                    </div>
+
+                    <div class="energy-details">
+
+                        <div class="energy-details-row">
+
+                            <span class="energy-details-label">
+                                Category
+                            </span>
+
+                            <span class="energy-details-value">
+                                Renewable
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Solar -->
+
+                <div class="energy-card solar">
+
+                    <div class="energy-top">
+
+                        <div class="energy-icon">
+                            ☀️
+                        </div>
+
+                        <span class="energy-label">
+                            Renewable
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Solar power
+                    </h3>
+
+                    <div
+                        class="percentage"
+                        id="solarValue"
+                    >
+                        —
+                    </div>
+
+                    <div class="gwh-value">
+
+                        <span id="solarGwh">
+                            —
+                        </span>
+
+                        GWh
+
+                    </div>
+
+                    <p>
+                        Solar electricity generation
+                    </p>
+
+                    <div class="energy-click-hint">
+                        Click for details
+                    </div>
+
+                    <div class="energy-details">
+
+                        <div class="energy-details-row">
+
+                            <span class="energy-details-label">
+                                Category
+                            </span>
+
+                            <span class="energy-details-value">
+                                Renewable
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Non-renewable thermal -->
+
+                <div class="energy-card thermal">
+
+                    <div class="energy-top">
+
+                        <div class="energy-icon">
+                            🔥
+                        </div>
+
+                        <span class="energy-label">
+                            Non-renewable
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Non-renewable thermal
+                    </h3>
+
+                    <div
+                        class="percentage"
+                        id="thermalNonRenewableValue"
+                    >
+                        —
+                    </div>
+
+                    <div class="gwh-value">
+
+                        <span id="thermalNonRenewableGwh">
+                            —
+                        </span>
+
+                        GWh
+
+                    </div>
+
+                    <p>
+                        Non-renewable thermal generation
+                    </p>
+
+                    <div class="energy-click-hint">
+                        Click for details
+                    </div>
+
+                    <div class="energy-details">
+
+                        <div class="energy-details-row">
+
+                            <span class="energy-details-label">
+                                Category
+                            </span>
+
+                            <span class="energy-details-value">
+                                Non-renewable
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Renewable thermal -->
+
+                <div class="energy-card renewable-thermal">
+
+                    <div class="energy-top">
+
+                        <div class="energy-icon">
+                            ♻️
+                        </div>
+
+                        <span class="energy-label">
+                            Renewable
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        Renewable thermal
+                    </h3>
+
+                    <div
+                        class="percentage"
+                        id="thermalRenewableValue"
+                    >
+                        —
+                    </div>
+
+                    <div class="gwh-value">
+
+                        <span id="thermalRenewableGwh">
+                            —
+                        </span>
+
+                        GWh
+
+                    </div>
+
+                    <p>
+                        Renewable thermal generation
+                    </p>
+
+                    <div class="energy-click-hint">
+                        Click for details
+                    </div>
+
+                    <div class="energy-details">
+
+                        <div class="energy-details-row">
+
+                            <span class="energy-details-label">
+                                Category
+                            </span>
+
+                            <span class="energy-details-value">
+                                Renewable
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================================
+             CHARTS
+             ================================================== -->
+
+        <div id="charts">
+
+
+            <!-- Selected month -->
+
+            <section class="chart-section">
+
+                <div class="section-heading">
+
+                    <span class="eyebrow">
+                        SELECTED MONTH
                     </span>
 
+                    <h2>
+                        Electricity Production
+                    </h2>
+
+                    <p>
+                        Production by energy source for the selected month
+                    </p>
+
                 </div>
 
-                <h3>Renewable thermal</h3>
 
-                <div class="percentage" id="thermalRenewableValue">
-                    —
+                <div class="chart-card">
+
+                    <canvas
+                        id="productionChart"
+                        aria-label="Electricity production for selected month"
+                    ></canvas>
+
                 </div>
 
-                <div class="gwh-value">
-                    <span id="thermalRenewableGwh">—</span> GWh
+            </section>
+
+
+            <!-- Renewable share -->
+
+            <section class="chart-section">
+
+                <div class="section-heading">
+
+                    <span class="eyebrow">
+                        ENERGY TRANSITION
+                    </span>
+
+                    <h2>
+                        Renewable Electricity Share
+                    </h2>
+
+                    <p>
+                        Share of Sweden's electricity production from renewable
+                        sources over time
+                    </p>
+
                 </div>
 
-                <p>
-                    Renewable thermal generation
-                </p>
 
-            </div>
+                <div class="chart-card">
 
+                    <canvas
+                        id="renewableChart"
+                        aria-label="Renewable electricity share over time"
+                    ></canvas>
 
-        </div>
+                </div>
 
-    </section>
-
-
-    <!-- CURRENT MONTH CHART -->
-
-    <section class="chart-section">
-
-        <div class="section-heading">
-
-            <div>
-
-                <span class="eyebrow">
-                    SELECTED MONTH
-                </span>
-
-                <h2>Electricity Production</h2>
-
-                <p>
-                    Production by energy source for the selected month
-                </p>
-
-            </div>
-
-        </div>
+            </section>
 
 
-        <div class="chart-card">
+            <!-- Historical trend -->
 
-            <canvas id="productionChart"></canvas>
+            <section class="chart-section">
 
-        </div>
+                <div class="section-heading">
 
-    </section>
+                    <span class="eyebrow">
+                        HISTORICAL TREND
+                    </span>
 
-    <!-- RENEWABLE TRANSITION CHART -->
+                    <h2>
+                        Electricity Production Over Time
+                    </h2>
 
-<section class="chart-section">
+                    <p>
+                        Monthly electricity production in Sweden
+                    </p>
 
-    <div class="section-heading">
+                </div>
 
-        <div>
 
-            <span class="eyebrow">
-                ENERGY TRANSITION
-            </span>
+                <div class="chart-card large-chart">
 
-            <h2>Renewable Electricity Share</h2>
+                    <canvas
+                        id="historyChart"
+                        aria-label="Historical electricity production in Sweden"
+                    ></canvas>
 
-            <p>
-                Share of Sweden's electricity production from renewable sources over time
-            </p>
+                </div>
+
+            </section>
 
         </div>
 
-    </div>
-
-    <div class="chart-card">
-
-        <canvas id="renewableChart"></canvas>
-
-    </div>
-
-</section>
-
-    <!-- LONG TERM CHART -->
-
-    <section class="chart-section">
-
-        <div class="section-heading">
-
-            <div>
-
-                <span class="eyebrow">
-                    HISTORICAL TREND
-                </span>
-
-                <h2>Electricity Production Over Time</h2>
-
-                <p>
-                    Monthly electricity production in Sweden
-                </p>
-
-            </div>
-
-        </div>
+    </main>
 
 
-        <div class="chart-card large-chart">
+    <!-- ==================================================
+         FOOTER
+         ================================================== -->
 
-            <canvas id="historyChart"></canvas>
+    <footer>
 
-        </div>
+        <p>
+            Sweden Energy Transition Dashboard
+        </p>
 
-    </section>
+        <p>
+            Data: SCB · Swedish Energy System
+        </p>
 
-
-</main>
-
-
-<footer>
-
-    <p>
-        Sweden Energy Transition Dashboard
-    </p>
-
-    <p>
-        Data: SCB · Swedish Energy System
-    </p>
-
-</footer>
+    </footer>
 
 
-<script src="script.js"></script>
+    <!-- ==================================================
+         JAVASCRIPT
+         ================================================== -->
 
+    <script src="script.js"></script>
 
 </body>
 
 </html>
+

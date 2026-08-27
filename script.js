@@ -1,30 +1,57 @@
-const monthSelect = document.getElementById("monthSelector");
+// ======================================================
+// ELEMENTS
+// ======================================================
 
-const totalProduction = document.getElementById("totalProduction");
-const selectedPeriod = document.getElementById("selectedPeriod");
+const monthSelect =
+    document.getElementById("monthSelector");
 
-const renewableValue = document.getElementById("renewableValue");
-const renewableGwh = document.getElementById("renewableGwh");
+const totalProduction =
+    document.getElementById("totalProduction");
 
-const overviewNuclearValue = document.getElementById("overviewNuclearValue");
+const selectedPeriod =
+    document.getElementById("selectedPeriod");
 
-const overviewNuclearGwh = document.getElementById("overviewNuclearGwh");
+const renewableValue =
+    document.getElementById("renewableValue");
 
-const nonRenewableValue = document.getElementById("nonRenewableValue");
+const renewableGwh =
+    document.getElementById("renewableGwh");
 
-const nonRenewableGwh = document.getElementById("nonRenewableGwh");
+const overviewNuclearValue =
+    document.getElementById("overviewNuclearValue");
 
-const hydroValue = document.getElementById("hydroValue");
-const hydroGwh = document.getElementById("hydroGwh");
+const overviewNuclearGwh =
+    document.getElementById("overviewNuclearGwh");
 
-const nuclearValue = document.getElementById("nuclearValue");
-const nuclearGwh = document.getElementById("nuclearGwh");
+const nonRenewableValue =
+    document.getElementById("nonRenewableValue");
 
-const windValue = document.getElementById("windValue");
-const windGwh = document.getElementById("windGwh");
+const nonRenewableGwh =
+    document.getElementById("nonRenewableGwh");
 
-const solarValue = document.getElementById("solarValue");
-const solarGwh = document.getElementById("solarGwh");
+const hydroValue =
+    document.getElementById("hydroValue");
+
+const hydroGwh =
+    document.getElementById("hydroGwh");
+
+const nuclearValue =
+    document.getElementById("nuclearValue");
+
+const nuclearGwh =
+    document.getElementById("nuclearGwh");
+
+const windValue =
+    document.getElementById("windValue");
+
+const windGwh =
+    document.getElementById("windGwh");
+
+const solarValue =
+    document.getElementById("solarValue");
+
+const solarGwh =
+    document.getElementById("solarGwh");
 
 const thermalNonRenewableValue =
     document.getElementById("thermalNonRenewableValue");
@@ -44,10 +71,19 @@ const productionCanvas =
 const historyCanvas =
     document.getElementById("historyChart");
 
-let productionChart = null;
-let historyChart = null;
+const renewableCanvas =
+    document.getElementById("renewableChart");
+
+
+// ======================================================
+// VARIABLES
+// ======================================================
 
 let allRows = [];
+
+let productionChart = null;
+let historyChart = null;
+let renewableChart = null;
 
 
 // ======================================================
@@ -55,34 +91,38 @@ let allRows = [];
 // ======================================================
 
 fetch("./data/electricity-production.csv")
+
     .then(response => {
 
         if (!response.ok) {
-            throw new Error("HTTP " + response.status);
+            throw new Error(
+                "HTTP " + response.status
+            );
         }
 
         return response.text();
 
     })
+
     .then(csv => {
 
         allRows = parseCSV(csv);
 
         if (!allRows.length) {
-            throw new Error("CSV contains no data");
+            throw new Error(
+                "CSV contains no data"
+            );
         }
 
         setupMonthSelector(allRows);
 
         updateDashboard();
-
         updateHistoryChart();
-
         updateRenewableChart();
-
         updateKeyFindings();
 
     })
+
     .catch(error => {
 
         console.error(
@@ -90,8 +130,12 @@ fetch("./data/electricity-production.csv")
             error
         );
 
-        monthSelect.innerHTML =
-            "<option>Could not load data</option>";
+        if (monthSelect) {
+
+            monthSelect.innerHTML =
+                "<option>Could not load data</option>";
+
+        }
 
     });
 
@@ -112,7 +156,9 @@ function parseCSV(csv) {
     }
 
     return lines
+
         .slice(1)
+
         .map(line => {
 
             const parts =
@@ -156,6 +202,7 @@ function parseCSV(csv) {
             };
 
         })
+
         .filter(row =>
             row.month &&
             row.type
@@ -165,16 +212,49 @@ function parseCSV(csv) {
 
 
 // ======================================================
-// MONTH SELECTOR
+// MONTH SELECTOR — PREMIUM CUSTOM PICKER
 // ======================================================
 
 function setupMonthSelector(rows) {
 
+    if (!monthSelect) {
+        return;
+    }
+
+
+    // ==================================================
+    // AVAILABLE MONTHS
+    // ==================================================
+
     const months = [
         ...new Set(
-            rows.map(row => row.month)
+            rows
+                .map(row => row.month)
+                .filter(Boolean)
         )
     ];
+
+
+    if (!months.length) {
+        return;
+    }
+
+
+    // ==================================================
+    // SORT MONTHS CHRONOLOGICALLY
+    // ==================================================
+
+    months.sort((a, b) => {
+
+        return getMonthDate(a) - getMonthDate(b);
+
+    });
+
+
+    // ==================================================
+    // ORIGINAL SELECT
+    // Keep it for dashboard compatibility
+    // ==================================================
 
     monthSelect.innerHTML = "";
 
@@ -192,28 +272,728 @@ function setupMonthSelector(rows) {
 
     });
 
-    monthSelect.value =
+
+    // ==================================================
+    // LATEST AVAILABLE MONTH
+    // ==================================================
+
+    const latestMonth =
         months[months.length - 1];
+
+    monthSelect.value =
+        latestMonth;
+
+
+    // ==================================================
+    // CUSTOM PICKER ELEMENTS
+    // ==================================================
+
+    const picker =
+        document.querySelector(
+            ".month-picker"
+        );
+
+    const pickerButton =
+        document.getElementById(
+            "monthPickerButton"
+        );
+
+    const pickerValue =
+        document.getElementById(
+            "monthPickerValue"
+        );
+
+    const pickerMenu =
+        document.getElementById(
+            "monthPickerMenu"
+        );
+
+    const pickerYear =
+        document.getElementById(
+            "pickerYear"
+        );
+
+    const monthGrid =
+        document.getElementById(
+            "monthGrid"
+        );
+
+    const previousYear =
+        document.getElementById(
+            "previousYear"
+        );
+
+    const nextYear =
+        document.getElementById(
+            "nextYear"
+        );
+
+
+    // ==================================================
+    // IF CUSTOM PICKER HTML DOES NOT EXIST
+    // Use normal select instead
+    // ==================================================
+
+    if (
+        !picker ||
+        !pickerButton ||
+        !pickerValue ||
+        !pickerMenu ||
+        !pickerYear ||
+        !monthGrid
+    ) {
+
+        monthSelect.addEventListener(
+            "change",
+            updateDashboard
+        );
+
+        return;
+
+    }
+
+
+    // ==================================================
+    // YEAR FUNCTION
+    // Works with:
+    // 2026M06
+    // 2026-06
+    // 2026/06
+    // ==================================================
+
+    function getYear(month) {
+
+        if (!month) {
+            return null;
+        }
+
+        const match =
+            String(month).match(
+                /^(\d{4})/
+            );
+
+        if (!match) {
+            return null;
+        }
+
+        return Number(match[1]);
+
+    }
+
+
+    // ==================================================
+    // MONTH NUMBER
+    // ==================================================
+
+    function getMonthNumber(month) {
+
+        if (!month) {
+            return null;
+        }
+
+
+        const value =
+            String(month);
+
+
+        // 2026M06
+        let match =
+            value.match(
+                /^\d{4}M(\d{2})/
+            );
+
+        if (match) {
+            return Number(match[1]);
+        }
+
+
+        // 2026-06
+        match =
+            value.match(
+                /^\d{4}-(\d{2})/
+            );
+
+        if (match) {
+            return Number(match[1]);
+        }
+
+
+        // 2026/06
+        match =
+            value.match(
+                /^\d{4}\/(\d{2})/
+            );
+
+        if (match) {
+            return Number(match[1]);
+        }
+
+
+        return null;
+
+    }
+
+
+    // ==================================================
+    // DATE FOR SORTING
+    // ==================================================
+
+    function getMonthDate(month) {
+
+        const year =
+            getYear(month);
+
+        const monthNumber =
+            getMonthNumber(month);
+
+        if (
+            !year ||
+            !monthNumber
+        ) {
+            return 0;
+        }
+
+        return new Date(
+            year,
+            monthNumber - 1,
+            1
+        ).getTime();
+
+    }
+
+
+    // ==================================================
+    // AVAILABLE YEARS
+    // ==================================================
+
+    const availableYears = [
+
+        ...new Set(
+
+            months
+
+                .map(month =>
+                    getYear(month)
+                )
+
+                .filter(year =>
+                    Number.isFinite(year)
+                )
+
+        )
+
+    ].sort(
+        (a, b) => a - b
+    );
+
+
+    // ==================================================
+    // CURRENT YEAR
+    // ==================================================
+
+    let selectedMonth =
+        monthSelect.value;
+
+    let currentYear =
+        getYear(selectedMonth);
+
+
+    if (
+        !currentYear &&
+        availableYears.length
+    ) {
+
+        currentYear =
+            availableYears[
+                availableYears.length - 1
+            ];
+
+    }
+
+
+    // ==================================================
+    // MONTH NAMES
+    // ==================================================
+
+    const monthNames = [
+
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+
+    ];
+
+
+    const shortMonthNames = [
+
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+
+    ];
+
+
+    // ==================================================
+    // FIND REAL CSV MONTH
+    //
+    // IMPORTANT:
+    // We do NOT construct "2026-06".
+    // We find the actual value from the CSV.
+    // This fixes the disabled-month problem.
+    // ==================================================
+
+    function findMonth(
+        year,
+        monthNumber
+    ) {
+
+        return months.find(month => {
+
+            return (
+                getYear(month) === year &&
+                getMonthNumber(month) === monthNumber
+            );
+
+        });
+
+    }
+
+
+    // ==================================================
+    // UPDATE VISIBLE VALUE
+    // ==================================================
+
+    function updatePickerValue(month) {
+
+        if (!month) {
+
+            pickerValue.textContent =
+                "Select month";
+
+            return;
+
+        }
+
+        pickerValue.textContent =
+            formatMonth(month);
+
+    }
+
+
+    // ==================================================
+    // OPEN PICKER
+    // ==================================================
+
+    function openPicker() {
+
+        picker.classList.add("open");
+
+        pickerButton.classList.add(
+            "active"
+        );
+
+        pickerMenu.classList.add(
+            "open"
+        );
+
+        pickerButton.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+        renderMonths();
+
+    }
+
+
+    // ==================================================
+    // CLOSE PICKER
+    // ==================================================
+
+    function closePicker() {
+
+        picker.classList.remove("open");
+
+        pickerButton.classList.remove(
+            "active"
+        );
+
+        pickerMenu.classList.remove(
+            "open"
+        );
+
+        pickerButton.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+    }
+
+
+    // ==================================================
+    // RENDER MONTHS
+    // ==================================================
+
+    function renderMonths() {
+
+        monthGrid.innerHTML = "";
+
+        pickerYear.textContent =
+            currentYear;
+
+
+        for (
+            let monthIndex = 1;
+            monthIndex <= 12;
+            monthIndex++
+        ) {
+
+            const matchingMonth =
+                findMonth(
+                    currentYear,
+                    monthIndex
+                );
+
+
+            const button =
+                document.createElement(
+                    "button"
+                );
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "month-option";
+
+
+            button.textContent =
+                shortMonthNames[
+                    monthIndex - 1
+                ];
+
+
+            // ==================================================
+            // MONTH EXISTS
+            // ==================================================
+
+            if (!matchingMonth) {
+
+                button.disabled = true;
+
+                button.classList.add(
+                    "month-disabled"
+                );
+
+            } else {
+
+                button.disabled = false;
+
+                button.classList.remove(
+                    "month-disabled"
+                );
+
+            }
+
+
+            // ==================================================
+            // CURRENTLY SELECTED
+            // ==================================================
+
+            if (
+                matchingMonth &&
+                matchingMonth ===
+                    monthSelect.value
+            ) {
+
+                button.classList.add(
+                    "selected"
+                );
+
+            }
+
+
+            // ==================================================
+            // CLICK MONTH
+            // ==================================================
+
+            if (matchingMonth) {
+
+                button.addEventListener(
+                    "click",
+                    function(event) {
+
+                        event.preventDefault();
+
+                        event.stopPropagation();
+
+
+                        selectedMonth =
+                            matchingMonth;
+
+
+                        monthSelect.value =
+                            matchingMonth;
+
+
+                        updatePickerValue(
+                            matchingMonth
+                        );
+
+
+                        // Trigger dashboard update
+                        monthSelect.dispatchEvent(
+                            new Event(
+                                "change",
+                                {
+                                    bubbles: true
+                                }
+                            )
+                        );
+
+
+                        renderMonths();
+
+                        closePicker();
+
+                    }
+                );
+
+            }
+
+
+            monthGrid.appendChild(
+                button
+            );
+
+        }
+
+    }
+
+
+    // ==================================================
+    // PICKER BUTTON
+    // ==================================================
+
+    pickerButton.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+
+            if (
+                picker.classList.contains(
+                    "open"
+                )
+            ) {
+
+                closePicker();
+
+            } else {
+
+                // Always open on selected year
+
+                currentYear =
+                    getYear(
+                        monthSelect.value
+                    );
+
+                openPicker();
+
+            }
+
+        }
+    );
+
+
+    // ==================================================
+    // PREVIOUS YEAR
+    // ==================================================
+
+    if (previousYear) {
+
+        previousYear.addEventListener(
+            "click",
+            function(event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                const currentIndex =
+                    availableYears.indexOf(
+                        currentYear
+                    );
+
+
+                if (currentIndex > 0) {
+
+                    currentYear =
+                        availableYears[
+                            currentIndex - 1
+                        ];
+
+                    renderMonths();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ==================================================
+    // NEXT YEAR
+    // ==================================================
+
+    if (nextYear) {
+
+        nextYear.addEventListener(
+            "click",
+            function(event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                const currentIndex =
+                    availableYears.indexOf(
+                        currentYear
+                    );
+
+
+                if (
+                    currentIndex !== -1 &&
+                    currentIndex <
+                        availableYears.length - 1
+                ) {
+
+                    currentYear =
+                        availableYears[
+                            currentIndex + 1
+                        ];
+
+                    renderMonths();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ==================================================
+    // CLOSE WHEN CLICKING OUTSIDE
+    // ==================================================
+
+    document.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                !picker.contains(
+                    event.target
+                )
+            ) {
+
+                closePicker();
+
+            }
+
+        }
+    );
+
+
+    // ==================================================
+    // NORMAL SELECT FALLBACK
+    // ==================================================
 
     monthSelect.addEventListener(
         "change",
-        updateDashboard
+        function() {
+
+            const selected =
+                monthSelect.value;
+
+            if (selected) {
+
+                currentYear =
+                    getYear(selected);
+
+                updatePickerValue(
+                    selected
+                );
+
+                renderMonths();
+
+            }
+
+            updateDashboard();
+
+        }
     );
+
+
+    // ==================================================
+    // INITIAL VALUE
+    // ==================================================
+
+    updatePickerValue(
+        latestMonth
+    );
+
+    renderMonths();
 
 }
 
 
 // ======================================================
-// UPDATE DASHBOARD
+// DASHBOARD
 // ======================================================
 
 function updateDashboard() {
 
+    if (!monthSelect) {
+        return;
+    }
+
+
     const selectedMonth =
         monthSelect.value;
 
+
     const values =
-        getMonthValues(selectedMonth);
+        getMonthValues(
+            selectedMonth
+        );
+
 
     const total =
         values.Total ?? 0;
@@ -236,59 +1016,80 @@ function updateDashboard() {
     const thermalRenewable =
         values.VarmekrF ?? 0;
 
-    const renewable =
-    hydro +
-    wind +
-    solar +
-    thermalRenewable;
 
-const nonRenewable =
-    thermalNonRenewable;
+    const renewable =
+        hydro +
+        wind +
+        solar +
+        thermalRenewable;
+
+
+    const nonRenewable =
+        thermalNonRenewable;
 
 
     // ==================================================
     // TOTAL
     // ==================================================
 
-    totalProduction.textContent =
-        formatNumber(total);
+    setValue(
+        totalProduction,
+        formatNumber(total)
+    );
 
-    selectedPeriod.textContent =
-        formatMonth(selectedMonth);
+    setValue(
+        selectedPeriod,
+        formatMonth(selectedMonth)
+    );
 
-        // ==================================================
-// ENERGY OVERVIEW
-// ==================================================
 
-setValue(
-    renewableValue,
-    percentage(renewable, total)
-);
+    // ==================================================
+    // OVERVIEW
+    // ==================================================
 
-setValue(
-    renewableGwh,
-    formatNumber(renewable) + " GWh"
-);
+    setValue(
+        renewableValue,
+        percentage(
+            renewable,
+            total
+        )
+    );
 
-setValue(
-    overviewNuclearValue,
-    percentage(nuclear, total)
-);
+    setValue(
+        renewableGwh,
+        formatNumber(renewable) +
+        " GWh"
+    );
 
-setValue(
-    overviewNuclearGwh,
-    formatNumber(nuclear) + " GWh"
-);
 
-setValue(
-    nonRenewableValue,
-    percentage(nonRenewable, total)
-);
+    setValue(
+        overviewNuclearValue,
+        percentage(
+            nuclear,
+            total
+        )
+    );
 
-setValue(
-    nonRenewableGwh,
-    formatNumber(nonRenewable) + " GWh"
-);
+    setValue(
+        overviewNuclearGwh,
+        formatNumber(nuclear) +
+        " GWh"
+    );
+
+
+    setValue(
+        nonRenewableValue,
+        percentage(
+            nonRenewable,
+            total
+        )
+    );
+
+    setValue(
+        nonRenewableGwh,
+        formatNumber(nonRenewable) +
+        " GWh"
+    );
 
 
     // ==================================================
@@ -297,7 +1098,10 @@ setValue(
 
     setValue(
         hydroValue,
-        percentage(hydro, total)
+        percentage(
+            hydro,
+            total
+        )
     );
 
     setValue(
@@ -312,7 +1116,10 @@ setValue(
 
     setValue(
         nuclearValue,
-        percentage(nuclear, total)
+        percentage(
+            nuclear,
+            total
+        )
     );
 
     setValue(
@@ -327,7 +1134,10 @@ setValue(
 
     setValue(
         windValue,
-        percentage(wind, total)
+        percentage(
+            wind,
+            total
+        )
     );
 
     setValue(
@@ -342,7 +1152,10 @@ setValue(
 
     setValue(
         solarValue,
-        percentage(solar, total)
+        percentage(
+            solar,
+            total
+        )
     );
 
     setValue(
@@ -392,7 +1205,7 @@ setValue(
 
 
     // ==================================================
-    // CHART
+    // CURRENT MONTH CHART
     // ==================================================
 
     updateProductionChart(
@@ -412,9 +1225,11 @@ function getMonthValues(month) {
     const values = {};
 
     allRows
+
         .filter(row =>
             row.month === month
         )
+
         .forEach(row => {
 
             values[row.type] =
@@ -431,7 +1246,10 @@ function getMonthValues(month) {
 // SET VALUE
 // ======================================================
 
-function setValue(element, value) {
+function setValue(
+    element,
+    value
+) {
 
     if (!element) {
         return;
@@ -440,6 +1258,16 @@ function setValue(element, value) {
     element.textContent =
         value;
 
+    element.classList.remove(
+        "value-updated"
+    );
+
+    void element.offsetWidth;
+
+    element.classList.add(
+        "value-updated"
+    );
+
 }
 
 
@@ -447,7 +1275,10 @@ function setValue(element, value) {
 // PERCENTAGE
 // ======================================================
 
-function percentage(value, total) {
+function percentage(
+    value,
+    total
+) {
 
     if (
         total <= 0 ||
@@ -455,11 +1286,14 @@ function percentage(value, total) {
         value === undefined ||
         Number.isNaN(value)
     ) {
+
         return "—";
+
     }
 
     return (
-        (value / total) * 100
+        (value / total) *
+        100
     ).toFixed(1) + "%";
 
 }
@@ -476,11 +1310,15 @@ function formatNumber(value) {
         value === undefined ||
         Number.isNaN(value)
     ) {
+
         return "—";
+
     }
 
     return Number(value)
-        .toLocaleString("en-US");
+        .toLocaleString(
+            "en-US"
+        );
 
 }
 
@@ -495,14 +1333,95 @@ function formatMonth(month) {
         return "—";
     }
 
-    const parts =
-        month.split("M");
 
-    const year =
-        parts[0];
+    const value =
+        String(month);
 
-    const monthNumber =
-        Number(parts[1]);
+
+    let year = null;
+    let monthNumber = null;
+
+
+    // ==================================================
+    // 2026M06
+    // ==================================================
+
+    let match =
+        value.match(
+            /^(\d{4})M(\d{2})$/
+        );
+
+
+    if (match) {
+
+        year =
+            Number(match[1]);
+
+        monthNumber =
+            Number(match[2]);
+
+    }
+
+
+    // ==================================================
+    // 2026-06
+    // ==================================================
+
+    if (!match) {
+
+        match =
+            value.match(
+                /^(\d{4})-(\d{2})$/
+            );
+
+        if (match) {
+
+            year =
+                Number(match[1]);
+
+            monthNumber =
+                Number(match[2]);
+
+        }
+
+    }
+
+
+    // ==================================================
+    // 2026/06
+    // ==================================================
+
+    if (!match) {
+
+        match =
+            value.match(
+                /^(\d{4})\/(\d{2})$/
+            );
+
+        if (match) {
+
+            year =
+                Number(match[1]);
+
+            monthNumber =
+                Number(match[2]);
+
+        }
+
+    }
+
+
+    if (
+        !year ||
+        !monthNumber ||
+        monthNumber < 1 ||
+        monthNumber > 12
+    ) {
+
+        return value;
+
+    }
+
 
     const monthNames = [
 
@@ -521,8 +1440,11 @@ function formatMonth(month) {
 
     ];
 
+
     return (
-        monthNames[monthNumber - 1] +
+        monthNames[
+            monthNumber - 1
+        ] +
         " " +
         year
     );
@@ -534,141 +1456,188 @@ function formatMonth(month) {
 // CURRENT MONTH CHART
 // ======================================================
 
-function updateProductionChart(month, values) {
+function updateProductionChart(
+    month,
+    values
+) {
 
     if (!productionCanvas) {
         return;
     }
 
+
     const labels = [
+
         "Hydropower",
         "Nuclear",
         "Wind",
         "Solar",
         "Non-renewable thermal",
         "Renewable thermal"
+
     ];
 
+
     const data = [
+
         values.Vattenkraft ?? 0,
         values.Karnkraft ?? 0,
         values.Vindkraft ?? 0,
         values.Solkraft ?? 0,
         values.VarmekrEjF ?? 0,
         values.VarmekrF ?? 0
+
     ];
+
 
     if (productionChart) {
 
-        productionChart.data.labels = labels;
-        productionChart.data.datasets[0].data = data;
-        productionChart.data.datasets[0].label = formatMonth(month);
+        productionChart.data.labels =
+            labels;
 
-        productionChart.update();
+        productionChart.data.datasets[0].data =
+            data;
+
+        productionChart.data.datasets[0].label =
+            formatMonth(month);
+
+        productionChart.update("active");
 
         return;
+
     }
 
-    productionChart = new Chart(
-        productionCanvas,
-        {
-            type: "bar",
 
-            data: {
-                labels: labels,
+    productionChart =
+        new Chart(
+            productionCanvas,
+            {
 
-                datasets: [
-                    {
-                        label: formatMonth(month),
-                        data: data,
-                        borderWidth: 0,
-                        borderRadius: 6,
-                        borderSkipped: false
-                    }
-                ]
-            },
+                type: "bar",
 
-            options: {
+                data: {
 
-                responsive: true,
-                maintainAspectRatio: false,
+                    labels,
 
-                interaction: {
-                    mode: "index",
-                    intersect: false
-                },
+                    datasets: [
 
-                plugins: {
+                        {
 
-                    legend: {
-                        display: false
-                    },
+                            label:
+                                formatMonth(month),
 
-                    tooltip: {
+                            data,
 
-                        backgroundColor: "#111827",
-                        padding: 12,
+                            borderWidth: 0,
 
-                        titleFont: {
-                            size: 14,
-                            weight: "bold"
-                        },
+                            borderRadius: 6,
 
-                        bodyFont: {
-                            size: 13
-                        },
-
-                        callbacks: {
-
-                            label: function(context) {
-
-                                return (
-                                    " " +
-                                    formatNumber(context.raw) +
-                                    " GWh"
-                                );
-
-                            }
+                            borderSkipped: false
 
                         }
 
-                    }
+                    ]
 
                 },
 
-                scales: {
+                options: {
 
-                    x: {
+                    responsive: true,
 
-                        grid: {
+                    maintainAspectRatio: false,
+
+                    interaction: {
+
+                        mode: "index",
+
+                        intersect: false
+
+                    },
+
+                    plugins: {
+
+                        legend: {
                             display: false
                         },
 
-                        ticks: {
-                            color: "#64748b",
-                            font: {
-                                size: 12
+                        tooltip: {
+
+                            backgroundColor:
+                                "#111827",
+
+                            padding: 12,
+
+                            callbacks: {
+
+                                label:
+                                    function(context) {
+
+                                        return (
+                                            " " +
+                                            formatNumber(
+                                                context.raw
+                                            ) +
+                                            " GWh"
+                                        );
+
+                                    }
+
                             }
+
                         }
 
                     },
 
-                    y: {
+                    scales: {
 
-                        beginAtZero: true,
+                        x: {
 
-                        grid: {
-                            color: "#e5e7eb"
+                            grid: {
+                                display: false
+                            },
+
+                            ticks: {
+
+                                color:
+                                    "#64748b",
+
+                                font: {
+                                    size: 12
+                                }
+
+                            }
+
                         },
 
-                        ticks: {
-                            color: "#64748b"
-                        },
+                        y: {
 
-                        title: {
-                            display: true,
-                            text: "GWh",
-                            color: "#64748b"
+                            beginAtZero: true,
+
+                            grid: {
+
+                                color:
+                                    "#e5e7eb"
+
+                            },
+
+                            ticks: {
+
+                                color:
+                                    "#64748b"
+
+                            },
+
+                            title: {
+
+                                display: true,
+
+                                text: "GWh",
+
+                                color:
+                                    "#64748b"
+
+                            }
+
                         }
 
                     }
@@ -676,11 +1645,10 @@ function updateProductionChart(month, values) {
                 }
 
             }
-
-        }
-    );
+        );
 
 }
+
 
 // ======================================================
 // HISTORY CHART
@@ -692,11 +1660,30 @@ function updateHistoryChart() {
         return;
     }
 
+
     const months = [
+
         ...new Set(
-            allRows.map(row => row.month)
+            allRows.map(
+                row => row.month
+            )
         )
+
     ];
+
+
+    months.sort(
+        (a, b) =>
+            new Date(
+                getYearFromMonth(a),
+                getMonthFromMonth(a) - 1
+            ) -
+            new Date(
+                getYearFromMonth(b),
+                getMonthFromMonth(b) - 1
+            )
+    );
+
 
     const hydroData = [];
     const nuclearData = [];
@@ -705,9 +1692,12 @@ function updateHistoryChart() {
     const thermalNonRenewableData = [];
     const thermalRenewableData = [];
 
+
     months.forEach(month => {
 
-        const values = getMonthValues(month);
+        const values =
+            getMonthValues(month);
+
 
         hydroData.push(
             values.Vattenkraft ?? 0
@@ -735,174 +1725,265 @@ function updateHistoryChart() {
 
     });
 
-    const labels = months.map(formatMonth);
 
-    historyChart = new Chart(
-        historyCanvas,
-        {
+    historyChart =
+        new Chart(
+            historyCanvas,
+            {
 
-            type: "line",
+                type: "line",
 
-            data: {
+                data: {
 
-                labels,
+                    labels:
+                        months.map(
+                            formatMonth
+                        ),
 
-                datasets: [
+                    datasets: [
 
-                    {
-                        label: "Hydropower",
-                        data: hydroData,
-                        tension: 0.25,
-                        borderWidth: 2,
-                        pointRadius: 0
-                    },
+                        {
 
-                    {
-                        label: "Nuclear",
-                        data: nuclearData,
-                        tension: 0.25,
-                        borderWidth: 2,
-                        pointRadius: 0
-                    },
+                            label:
+                                "Hydropower",
 
-                    {
-                        label: "Wind",
-                        data: windData,
-                        tension: 0.25,
-                        borderWidth: 2,
-                        pointRadius: 0
-                    },
+                            data:
+                                hydroData,
 
-                    {
-                        label: "Solar",
-                        data: solarData,
-                        tension: 0.25,
-                        borderWidth: 2,
-                        pointRadius: 0
-                    },
+                            tension: 0.25,
 
-                    {
-                        label: "Non-renewable thermal",
-                        data: thermalNonRenewableData,
-                        tension: 0.25,
-                        borderWidth: 2,
-                        pointRadius: 0
-                    },
+                            borderWidth: 2,
 
-                    {
-                        label: "Renewable thermal",
-                        data: thermalRenewableData,
-                        tension: 0.25,
-                        borderWidth: 2,
-                        pointRadius: 0
-                    }
+                            pointRadius: 0
 
-                ]
+                        },
 
-            },
+                        {
 
-            options: {
+                            label:
+                                "Nuclear",
 
-                responsive: true,
-                maintainAspectRatio: false,
+                            data:
+                                nuclearData,
 
-                interaction: {
-                    mode: "index",
-                    intersect: false
-                },
+                            tension: 0.25,
 
-                plugins: {
+                            borderWidth: 2,
 
-                    legend: {
+                            pointRadius: 0
 
-                        position: "bottom",
+                        },
 
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: "line",
-                            padding: 20,
-                            color: "#475569"
+                        {
+
+                            label:
+                                "Wind",
+
+                            data:
+                                windData,
+
+                            tension: 0.25,
+
+                            borderWidth: 2,
+
+                            pointRadius: 0
+
+                        },
+
+                        {
+
+                            label:
+                                "Solar",
+
+                            data:
+                                solarData,
+
+                            tension: 0.25,
+
+                            borderWidth: 2,
+
+                            pointRadius: 0
+
+                        },
+
+                        {
+
+                            label:
+                                "Non-renewable thermal",
+
+                            data:
+                                thermalNonRenewableData,
+
+                            tension: 0.25,
+
+                            borderWidth: 2,
+
+                            pointRadius: 0
+
+                        },
+
+                        {
+
+                            label:
+                                "Renewable thermal",
+
+                            data:
+                                thermalRenewableData,
+
+                            tension: 0.25,
+
+                            borderWidth: 2,
+
+                            pointRadius: 0
+
                         }
 
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    interaction: {
+
+                        mode: "index",
+
+                        intersect: false
+
                     },
 
-                    tooltip: {
+                    plugins: {
 
-                        backgroundColor: "#111827",
-                        padding: 12,
+                        legend: {
 
-                        titleFont: {
-                            size: 14,
-                            weight: "bold"
+                            position:
+                                "bottom",
+
+                            labels: {
+
+                                usePointStyle:
+                                    true,
+
+                                pointStyle:
+                                    "line",
+
+                                padding: 20,
+
+                                color:
+                                    "#475569"
+
+                            }
+
                         },
 
-                        bodyFont: {
-                            size: 13
-                        },
+                        tooltip: {
 
-                        callbacks: {
+                            backgroundColor:
+                                "#111827",
 
-                            label: function(context) {
+                            padding: 12,
 
-                                return (
-                                    " " +
-                                    context.dataset.label +
-                                    ": " +
-                                    formatNumber(context.raw) +
-                                    " GWh"
-                                );
+                            callbacks: {
+
+                                label:
+                                    function(context) {
+
+                                        return (
+                                            " " +
+                                            context.dataset.label +
+                                            ": " +
+                                            formatNumber(
+                                                context.raw
+                                            ) +
+                                            " GWh"
+                                        );
+
+                                    }
 
                             }
 
                         }
 
-                    }
-
-                },
-
-                scales: {
-
-                    x: {
-
-                        grid: {
-                            display: false
-                        },
-
-                       ticks: {
-                          color: "#64748b",
-                         maxRotation: 0,
-                         autoSkip: false,
-                         callback: function(value, index) {
-                             const label = this.getLabelForValue(value);
-
-                             if (label.includes("January")) {
-                                 return label.split(" ")[1];
-                              }
-
-                             return "";
-                         }           
-                       }
                     },
 
-                    y: {
+                    scales: {
 
-                        beginAtZero: true,
+                        x: {
 
-                        grid: {
-                            color: "#e5e7eb"
+                            grid: {
+                                display: false
+                            },
+
+                            ticks: {
+
+                                color:
+                                    "#64748b",
+
+                                maxRotation: 0,
+
+                                autoSkip: false,
+
+                                callback:
+                                    function(value) {
+
+                                        const label =
+                                            this.getLabelForValue(
+                                                value
+                                            );
+
+                                        if (
+                                            label.includes(
+                                                "January"
+                                            )
+                                        ) {
+
+                                            return label.split(
+                                                " "
+                                            )[1];
+
+                                        }
+
+                                        return "";
+
+                                    }
+
+                            }
+
                         },
 
-                        ticks: {
-                            color: "#64748b"
-                        },
+                        y: {
 
-                        title: {
+                            beginAtZero: true,
 
-                            display: true,
+                            grid: {
 
-                            text: "GWh",
+                                color:
+                                    "#e5e7eb"
 
-                            color: "#64748b"
+                            },
+
+                            ticks: {
+
+                                color:
+                                    "#64748b"
+
+                            },
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "GWh",
+
+                                color:
+                                    "#64748b"
+
+                            }
 
                         }
 
@@ -911,19 +1992,59 @@ function updateHistoryChart() {
                 }
 
             }
-
-        }
-    );
+        );
 
 }
+
+
 // ======================================================
-// RENEWABLE ELECTRICITY SHARE CHART
+// MONTH HELPERS FOR CHART
 // ======================================================
 
-const renewableCanvas =
-    document.getElementById("renewableChart");
+function getYearFromMonth(month) {
 
-let renewableChart = null;
+    const match =
+        String(month).match(
+            /^(\d{4})/
+        );
+
+    return match
+        ? Number(match[1])
+        : 0;
+
+}
+
+
+function getMonthFromMonth(month) {
+
+    let match =
+        String(month).match(
+            /^\d{4}M(\d{2})/
+        );
+
+    if (match) {
+        return Number(match[1]);
+    }
+
+
+    match =
+        String(month).match(
+            /^\d{4}-(\d{2})/
+        );
+
+    if (match) {
+        return Number(match[1]);
+    }
+
+
+    return 1;
+
+}
+
+
+// ======================================================
+// RENEWABLE CHART
+// ======================================================
 
 function updateRenewableChart() {
 
@@ -931,322 +2052,147 @@ function updateRenewableChart() {
         return;
     }
 
+
     const months = [
+
         ...new Set(
-            allRows.map(row => row.month)
+            allRows.map(
+                row => row.month
+            )
         )
+
     ];
 
-    const renewableData = [];
 
-    months.forEach(month => {
-
-        const values = getMonthValues(month);
-
-        const total =
-            values.Total ?? 0;
-
-        const renewable =
-            (values.Vattenkraft ?? 0) +
-            (values.Vindkraft ?? 0) +
-            (values.Solkraft ?? 0) +
-            (values.VarmekrF ?? 0);
-
-        const share =
-            total > 0
-                ? (renewable / total) * 100
-                : null;
-
-        renewableData.push(share);
-    });
-
-    const labels =
-        months.map(formatMonth);
-
-    renewableChart = new Chart(
-        renewableCanvas,
-        {
-            type: "line",
-
-            data: {
-
-                labels,
-
-                datasets: [
-                    {
-                        label: "Renewable electricity share",
-                        data: renewableData,
-                        tension: 0.25,
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        fill: false
-                    }
-                ]
-
-            },
-
-            options: {
-
-                responsive: true,
-                maintainAspectRatio: false,
-
-                interaction: {
-                    mode: "index",
-                    intersect: false
-                },
-
-                plugins: {
-
-                    legend: {
-                        display: false
-                    },
-
-                    tooltip: {
-
-                        backgroundColor: "#111827",
-                        padding: 12,
-
-                        callbacks: {
-
-                            label: function(context) {
-
-                                return (
-                                    " Renewable electricity: " +
-                                    context.raw.toFixed(1) +
-                                    "%"
-                                );
-
-                            }
-
-                        }
-
-                    }
-
-                },
-
-                scales: {
-
-                    x: {
-
-                        grid: {
-                            display: false
-                        },
-
-                        ticks: {
-
-                            color: "#64748b",
-
-                            maxRotation: 0,
-                            autoSkip: false,
-
-                            callback: function(value, index) {
-
-                                const label =
-                                    this.getLabelForValue(value);
-
-                                if (
-                                    label.includes("January")
-                                ) {
-                                    return label.split(" ")[1];
-                                }
-
-                                return "";
-
-                            }
-
-                        }
-
-                    },
-
-                    y: {
-
-                        beginAtZero: true,
-                        max: 100,
-
-                        grid: {
-                            color: "#e5e7eb"
-                        },
-
-                        ticks: {
-
-                            color: "#64748b",
-
-                            callback: function(value) {
-                                return value + "%";
-                            }
-
-                        },
-
-                        title: {
-
-                            display: true,
-                            text: "Renewable share",
-                            color: "#64748b"
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
+    months.sort(
+        (a, b) =>
+            getMonthDateForChart(a) -
+            getMonthDateForChart(b)
     );
 
-}
-// ======================================================
-// RENEWABLE TRANSITION CHART
-// ======================================================
-
-function updateRenewableChart() {
-
-    const renewableCanvas =
-        document.getElementById("renewableChart");
-
-    if (!renewableCanvas) {
-        return;
-    }
-
-    const months = [
-        ...new Set(
-            allRows.map(row => row.month)
-        )
-    ];
 
     const renewableData = [];
+
 
     months.forEach(month => {
 
         const values =
             getMonthValues(month);
 
+
         const total =
             values.Total ?? 0;
 
-        const hydro =
-            values.Vattenkraft ?? 0;
-
-        const wind =
-            values.Vindkraft ?? 0;
-
-        const solar =
-            values.Solkraft ?? 0;
-
-        const renewableThermal =
-            values.VarmekrF ?? 0;
 
         const renewable =
-            hydro +
-            wind +
-            solar +
-            renewableThermal;
+
+            (values.Vattenkraft ?? 0) +
+
+            (values.Vindkraft ?? 0) +
+
+            (values.Solkraft ?? 0) +
+
+            (values.VarmekrF ?? 0);
+
 
         const share =
+
             total > 0
-                ? (renewable / total) * 100
+
+                ? (
+                    renewable /
+                    total
+                ) * 100
+
                 : 0;
 
+
         renewableData.push(
-            Number(share.toFixed(1))
+            Number(
+                share.toFixed(1)
+            )
         );
 
     });
 
-    new Chart(
-        renewableCanvas,
-        {
 
-            type: "line",
+    renewableChart =
+        new Chart(
+            renewableCanvas,
+            {
 
-            data: {
+                type: "line",
 
-                labels: months.map(formatMonth),
+                data: {
 
-                datasets: [
+                    labels:
+                        months.map(
+                            formatMonth
+                        ),
 
-                    {
-                        label: "Renewable electricity share",
-                        data: renewableData,
-                        tension: 0.25,
-                        borderWidth: 3,
-                        pointRadius: 0,
-                        fill: false
-                    }
+                    datasets: [
 
-                ]
+                        {
 
-            },
+                            label:
+                                "Renewable electricity share",
 
-            options: {
+                            data:
+                                renewableData,
 
-                responsive: true,
-                maintainAspectRatio: false,
+                            tension: 0.25,
 
-                interaction: {
-                    mode: "index",
-                    intersect: false
-                },
+                            borderWidth: 3,
 
-                plugins: {
+                            pointRadius: 0,
 
-                    legend: {
-                        display: false
-                    },
-
-                    tooltip: {
-
-                        backgroundColor: "#111827",
-                        padding: 12,
-
-                        callbacks: {
-
-                            label: function(context) {
-
-                                return (
-                                    " " +
-                                    context.raw +
-                                    "%"
-                                );
-
-                            }
+                            fill: false
 
                         }
 
-                    }
+                    ]
 
                 },
 
-                scales: {
+                options: {
 
-                    x: {
+                    responsive: true,
 
-                        grid: {
+                    maintainAspectRatio: false,
+
+                    interaction: {
+
+                        mode: "index",
+
+                        intersect: false
+
+                    },
+
+                    plugins: {
+
+                        legend: {
                             display: false
                         },
 
-                        ticks: {
+                        tooltip: {
 
-                            color: "#64748b",
+                            backgroundColor:
+                                "#111827",
 
-                            maxRotation: 0,
+                            padding: 12,
 
-                            autoSkip: false,
+                            callbacks: {
 
-                            callback: function(value, index) {
+                                label:
+                                    function(context) {
 
-                                const label =
-                                    this.getLabelForValue(value);
+                                        return (
+                                            " Renewable electricity: " +
+                                            context.raw +
+                                            "%"
+                                        );
 
-                                if (
-                                    label.includes("January")
-                                ) {
-
-                                    return label.split(" ")[1];
-
-                                }
-
-                                return "";
+                                    }
 
                             }
 
@@ -1254,30 +2200,92 @@ function updateRenewableChart() {
 
                     },
 
-                    y: {
+                    scales: {
 
-                        beginAtZero: true,
+                        x: {
 
-                        suggestedMax: 100,
+                            grid: {
+                                display: false
+                            },
 
-                        grid: {
-                            color: "#e5e7eb"
-                        },
+                            ticks: {
 
-                        ticks: {
-                            color: "#64748b",
-                            callback: function(value) {
-                                return value + "%";
+                                color:
+                                    "#64748b",
+
+                                maxRotation: 0,
+
+                                autoSkip: false,
+
+                                callback:
+                                    function(value) {
+
+                                        const label =
+                                            this.getLabelForValue(
+                                                value
+                                            );
+
+                                        if (
+                                            label.includes(
+                                                "January"
+                                            )
+                                        ) {
+
+                                            return label.split(
+                                                " "
+                                            )[1];
+
+                                        }
+
+                                        return "";
+
+                                    }
+
                             }
+
                         },
 
-                        title: {
+                        y: {
 
-                            display: true,
+                            beginAtZero: true,
 
-                            text: "Renewable share",
+                            max: 100,
 
-                            color: "#64748b"
+                            grid: {
+
+                                color:
+                                    "#e5e7eb"
+
+                            },
+
+                            ticks: {
+
+                                color:
+                                    "#64748b",
+
+                                callback:
+                                    function(value) {
+
+                                        return (
+                                            value +
+                                            "%"
+                                        );
+
+                                    }
+
+                            },
+
+                            title: {
+
+                                display: true,
+
+                                text:
+                                    "Renewable share",
+
+                                color:
+                                    "#64748b"
+
+                            }
 
                         }
 
@@ -1286,11 +2294,32 @@ function updateRenewableChart() {
                 }
 
             }
-
-        }
-    );
+        );
 
 }
+
+
+// ======================================================
+// DATE HELPER
+// ======================================================
+
+function getMonthDateForChart(month) {
+
+    const year =
+        getYearFromMonth(month);
+
+    const monthNumber =
+        getMonthFromMonth(month);
+
+    return new Date(
+        year,
+        monthNumber - 1,
+        1
+    ).getTime();
+
+}
+
+
 // ======================================================
 // KEY FINDINGS
 // ======================================================
@@ -1298,72 +2327,121 @@ function updateRenewableChart() {
 function updateKeyFindings() {
 
     const months = [
+
         ...new Set(
-            allRows.map(row => row.month)
+            allRows.map(
+                row => row.month
+            )
         )
+
     ];
+
+
+    months.sort(
+        (a, b) =>
+            getMonthDateForChart(a) -
+            getMonthDateForChart(b)
+    );
+
 
     if (months.length < 2) {
         return;
     }
 
-    const firstMonth = months[0];
-    const lastMonth = months[months.length - 1];
 
-    const firstValues = getMonthValues(firstMonth);
-    const lastValues = getMonthValues(lastMonth);
+    const firstMonth =
+        months[0];
 
-    // --------------------------------------------------
-    // RENEWABLE SHARE
-    // --------------------------------------------------
+    const lastMonth =
+        months[
+            months.length - 1
+        ];
 
-    const renewableLast =
-        (lastValues.Vattenkraft ?? 0) +
-        (lastValues.Vindkraft ?? 0) +
-        (lastValues.Solkraft ?? 0) +
-        (lastValues.VarmekrF ?? 0);
+
+    const firstValues =
+        getMonthValues(
+            firstMonth
+        );
+
+    const lastValues =
+        getMonthValues(
+            lastMonth
+        );
+
 
     const renewableFirst =
+
         (firstValues.Vattenkraft ?? 0) +
+
         (firstValues.Vindkraft ?? 0) +
+
         (firstValues.Solkraft ?? 0) +
+
         (firstValues.VarmekrF ?? 0);
 
-    const lastTotal =
-        lastValues.Total ?? 0;
+
+    const renewableLast =
+
+        (lastValues.Vattenkraft ?? 0) +
+
+        (lastValues.Vindkraft ?? 0) +
+
+        (lastValues.Solkraft ?? 0) +
+
+        (lastValues.VarmekrF ?? 0);
+
 
     const firstTotal =
         firstValues.Total ?? 0;
 
-    const lastShare =
-        lastTotal > 0
-            ? (renewableLast / lastTotal) * 100
-            : 0;
+    const lastTotal =
+        lastValues.Total ?? 0;
+
 
     const firstShare =
+
         firstTotal > 0
-            ? (renewableFirst / firstTotal) * 100
+
+            ? (
+                renewableFirst /
+                firstTotal
+              ) * 100
+
             : 0;
 
-    // --------------------------------------------------
-    // CHANGE
-    // --------------------------------------------------
+
+    const lastShare =
+
+        lastTotal > 0
+
+            ? (
+                renewableLast /
+                lastTotal
+              ) * 100
+
+            : 0;
+
 
     const change =
-        lastShare - firstShare;
+        lastShare -
+        firstShare;
+
 
     const changeText =
-        change >= 0
-            ? "+" + change.toFixed(1) + " percentage points"
-            : change.toFixed(1) + " percentage points";
 
-    // --------------------------------------------------
-    // LARGEST SOURCE
-    // --------------------------------------------------
+        change >= 0
+
+            ? "+" +
+              change.toFixed(1) +
+              " percentage points"
+
+            : change.toFixed(1) +
+              " percentage points";
+
 
     const sources = {
 
-        Hydropower:
+        "Hydropower":
             lastValues.Vattenkraft ?? 0,
 
         "Nuclear power":
@@ -1383,48 +2461,237 @@ function updateKeyFindings() {
 
     };
 
-    const largestSource =
-        Object.entries(sources)
-            .sort((a, b) => b[1] - a[1])[0];
 
-    // --------------------------------------------------
-    // DISPLAY
-    // --------------------------------------------------
+    const largestSource =
+
+        Object.entries(sources)
+            .sort(
+                (a, b) =>
+                    b[1] - a[1]
+            )[0];
+
 
     setValue(
-        document.getElementById("findingRenewable"),
-        lastShare.toFixed(1) + "%"
+
+        document.getElementById(
+            "findingRenewable"
+        ),
+
+        lastShare.toFixed(1) +
+        "%"
+
     );
 
+
     setValue(
-        document.getElementById("findingRenewableText"),
+
+        document.getElementById(
+            "findingRenewableText"
+        ),
+
         "Renewable electricity in " +
         formatMonth(lastMonth)
+
     );
 
+
     setValue(
-        document.getElementById("findingChange"),
+
+        document.getElementById(
+            "findingChange"
+        ),
+
         changeText
+
     );
 
+
     setValue(
-        document.getElementById("findingChangeText"),
+
+        document.getElementById(
+            "findingChangeText"
+        ),
+
         "Change from " +
         formatMonth(firstMonth) +
         " to " +
         formatMonth(lastMonth)
+
     );
 
+
     setValue(
-        document.getElementById("findingLargest"),
+
+        document.getElementById(
+            "findingLargest"
+        ),
+
         largestSource[0]
+
     );
 
+
     setValue(
-        document.getElementById("findingLargestText"),
-        formatNumber(largestSource[1]) +
+
+        document.getElementById(
+            "findingLargestText"
+        ),
+
+        formatNumber(
+            largestSource[1]
+        ) +
         " GWh in " +
         formatMonth(lastMonth)
+
     );
 
 }
+
+
+// ======================================================
+// NAVIGATION BUTTONS
+// ======================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        const buttons =
+            document.querySelectorAll(
+                ".dashboard-nav button"
+            );
+
+
+        buttons.forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    const targetId =
+                        button.dataset.target;
+
+
+                    const target =
+                        document.getElementById(
+                            targetId
+                        );
+
+
+                    if (!target) {
+                        return;
+                    }
+
+
+                    target.scrollIntoView({
+
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "start"
+
+                    });
+
+
+                    buttons.forEach(
+                        btn =>
+                            btn.classList.remove(
+                                "active"
+                            )
+                    );
+
+
+                    button.classList.add(
+                        "active"
+                    );
+
+                }
+            );
+
+        });
+
+    }
+);
+
+
+// ======================================================
+// SCROLL REVEAL
+// ======================================================
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        const sections =
+            document.querySelectorAll(
+                "main > section"
+            );
+
+
+        sections.forEach(section => {
+
+            section.classList.add(
+                "reveal-section"
+            );
+
+        });
+
+
+        if (
+            "IntersectionObserver"
+            in window
+        ) {
+
+            const observer =
+                new IntersectionObserver(
+
+                    entries => {
+
+                        entries.forEach(
+                            entry => {
+
+                                if (
+                                    entry.isIntersecting
+                                ) {
+
+                                    entry.target.classList.add(
+                                        "visible"
+                                    );
+
+                                    observer.unobserve(
+                                        entry.target
+                                    );
+
+                                }
+
+                            }
+                        );
+
+                    },
+
+                    {
+
+                        threshold: 0.08,
+
+                        rootMargin:
+                            "0px 0px -40px 0px"
+
+                    }
+
+                );
+
+
+            sections.forEach(section => {
+
+                observer.observe(
+                    section
+                );
+
+            });
+
+        }
+
+    }
+);
+

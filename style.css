@@ -1654,3 +1654,101 @@ footer p {
             auto !important;
     }
 }
+
+.details-button {
+    border: none;
+    background: none;
+    padding: 0;
+    margin-top: 10px;
+    font: inherit;
+    color: #64748b;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.details-button:hover {
+    color: #111827;
+}
+
+.details-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: 0.2s ease;
+    z-index: 9999;
+}
+
+.details-modal.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.details-modal-content {
+    position: relative;
+    width: min(500px, 100%);
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.details-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    border: none;
+    background: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #64748b;
+}
+
+.details-icon {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.details-category {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.details-modal-content h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+}
+
+.details-modal-content p {
+    color: #64748b;
+    margin-bottom: 24px;
+}
+
+.details-stat {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 14px 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+.details-stat span {
+    color: #64748b;
+}
+
+.details-stat strong {
+    color: #111827;
+}

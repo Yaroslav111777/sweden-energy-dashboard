@@ -639,7 +639,9 @@
                     </p>
 
                     <div class="energy-click-hint">
-                        Click for details
+                        <button class="details-button" data-source="Vattenkraft">
+                           Click for details
+                        </button>
                     </div>
 
                     <div class="energy-details">
@@ -703,7 +705,9 @@
                     </p>
 
                     <div class="energy-click-hint">
-                        Click for details
+                        <button class="details-button" data-source="Karnkraft">
+    Click for details
+</button>
                     </div>
 
                     <div class="energy-details">
@@ -767,7 +771,9 @@
                     </p>
 
                     <div class="energy-click-hint">
-                        Click for details
+                        <button class="details-button" data-source="Vindkraft">
+    Click for details
+</button>
                     </div>
 
                     <div class="energy-details">
@@ -831,7 +837,9 @@
                     </p>
 
                     <div class="energy-click-hint">
-                        Click for details
+                        <button class="details-button" data-source="Solkraft">
+    Click for details
+</button>
                     </div>
 
                     <div class="energy-details">
@@ -895,7 +903,9 @@
                     </p>
 
                     <div class="energy-click-hint">
-                        Click for details
+                        <button class="details-button" data-source="VarmekrEjF">
+    Click for details
+</button>
                     </div>
 
                     <div class="energy-details">
@@ -959,7 +969,9 @@
                     </p>
 
                     <div class="energy-click-hint">
-                        Click for details
+                        <button class="details-button" data-source="VarmekrF">
+    Click for details
+</button>
                     </div>
 
                     <div class="energy-details">
@@ -1118,6 +1130,43 @@
          ================================================== -->
 
     <script src="script.js"></script>
+
+<div id="detailsModal" class="details-modal">
+    <div class="details-modal-content">
+
+        <button id="closeDetails" class="details-close">
+            &times;
+        </button>
+
+        <div class="details-icon" id="detailsIcon">💧</div>
+
+        <div class="details-category" id="detailsCategory">
+            Renewable
+        </div>
+
+        <h2 id="detailsTitle">Hydropower</h2>
+
+        <p id="detailsDescription">
+            Electricity generated from hydropower.
+        </p>
+
+        <div class="details-stat">
+            <span>Production</span>
+            <strong id="detailsGwh">0 GWh</strong>
+        </div>
+
+        <div class="details-stat">
+            <span>Share of total production</span>
+            <strong id="detailsPercentage">0%</strong>
+        </div>
+
+        <div class="details-stat">
+            <span>Period</span>
+            <strong id="detailsPeriod">—</strong>
+        </div>
+
+    </div>
+</div>
 
 </body>
 

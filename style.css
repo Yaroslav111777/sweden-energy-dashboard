@@ -1752,3 +1752,10 @@ footer p {
 .details-stat strong {
     color: #111827;
 }
+
+/* Country dashboard switcher */
+.country-switch-global{position:fixed;top:18px;right:24px;z-index:1000;display:flex;gap:4px;padding:4px;background:rgba(255,255,255,.94);border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.10);backdrop-filter:blur(10px)}
+.country-switch-global a{padding:7px 10px;border-radius:7px;text-decoration:none;color:#64748b;font-size:11px;font-weight:700;white-space:nowrap}
+.country-switch-global a:hover{background:#f1f5f9;color:#0f172a}
+.country-switch-global a.active{background:#0f172a;color:#fff}
+@media(max-width:640px){.country-switch-global{top:10px;right:10px}.country-switch-global a{padding:6px 8px;font-size:10px}}
